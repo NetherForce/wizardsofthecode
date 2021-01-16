@@ -108,7 +108,7 @@ async function createLog(url, status){
 }
 exports.createRoom = createRoom;
 
-async function loadLog(roomId){
+async function loadLog(logId){
     //roomId - id of the room that you want to load (This function doesnt load the messages or the members. Only their ids)
 
     let user = new structures.User();

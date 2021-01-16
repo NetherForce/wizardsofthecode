@@ -29,8 +29,52 @@ var urls = {}; //an object that contains the urls
 			   //each object contains the userIds of the users that are currently expecting logs for the url
 			   //when an usser connects his id is added to the urls, he is expecting logs from
 			   //the user id is also added by a request when the user starts expecting logs from a certain url
-			   //if an url has no user that expect logs from it it is set to none
-			   //this objects also shows which urls need to be checked once in a while
+			   //then an user disconnects and the the value of his id gets set to false
+			   //if the log isn't 200 and the user id value is set to false and email is sent
+
+var sentEmails = {}; //same structure as urls
+					 //saves if a person was sent an email
+
+function checkWebsite(url) {
+	http
+		.get(url, function (res) {
+			console.log(url, res.statusCode);
+			return res.statusCode === 200;
+		})
+		.on("error", function (error) {
+			return error.code;
+		});
+}
+
+function logUrls(){
+	for (const [key, value] of Object.entries(urls)) {
+		if(ursl[key]){
+			dbFunctions.createLog(key, checkWebsite(key))
+			.then(function (dbReturn){
+				for (const [key_, value_] of Object.entries(urls[key])) {
+					if(dbReturn.success){
+						if(urls[key][key_]){
+							userIdToSockets(key_).emit('receivedLog', {log: dbReturn.object});
+							if(sentEmails[key][key_]){
+								//send email saying that the server is back up
+
+								sentEmails[key][key_] = false;
+							}
+						}else{
+							if(!sentEmails[key][key_]){
+								//send email saying that the server is down
+
+								sentEmails[key][key_] = true;
+							}
+						}
+					}else{
+						userIdToSockets(key_).emit('error', {error: dbReturn.error});
+					}
+				}
+			});
+		}
+    }
+}
 
 const generatorKeyId = 'arn:aws:kms:eu-central-1:234133237098:alias/messages_key';
 const keyIds = ['arn:aws:kms:eu-central-1:234133237098:key/81bbb404-3ce1-4d5c-92e8-81b5970a3219'];
@@ -93,21 +137,35 @@ app.post('/createUser', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-    let dbReturn = dbFunctions.login(req.username, req.password);
+    let dbReturn = dbFunctions.login(req.body.username, req.body.password);
 	if(dbReturn.success){
-		req.session.userId = dbReturn.object.id;
-		dbReturn.sessionId = req.session.id;
+		req.body.session.userId = dbReturn.object.id;
+		dbReturn.sessionId = req.body.session.id;
 	}
+
+	let user = req.body.object;
+	for (let url in user.urls) {
+        if(urls[url] == null){
+			urls[url] = {};
+		}
+		urls[url][user.id] = true;
+
+		if(sentEmails[url] == null){
+			sentEmails[url] = {};
+		}
+		sentEmails[url][user.id] = false;
+    }
+
 	res.json(dbReturn);
 });
 
 app.post('/getUser', (req, res) => {
-	let dbReturn = dbFunctions.loadUser(req.userId);
+	let dbReturn = dbFunctions.loadUser(req.body.userId);
 	res.json(dbReturn);
 });
 
 app.post('/getUserInfo', (req, res) => {
-	let dbReturn = dbFunctions.loadUserInfo(req.userId);
+	let dbReturn = dbFunctions.loadUserInfo(req.body.userId);
 	res.json(dbReturn);
 });
 
@@ -128,418 +186,46 @@ function onConnection(socket){
 		});
 	});
 
-	socket.on('getRoom', (msg) => {
+	socket.on('getLog', (msg) => {
 		msg = JSON.parse(msg);
-	
+
 		store.get(msg.sessionId, (error, session) => {
 			if(session.userId){
 				if(userIdToSockets[session.userId]){
-					let dbReturn = dbFunctions.loadRoom(msg.roomId);
-					if(dbReturn.success){
-						let theRoom = dbReturn.object;
-
-						let wasSentSuccessful = false;
-						for(let i = 0; i < theRoom.brMembers; i++){
-							if(theRoom.memberIds[i] == session.userId){
-								userIdToSockets[session.userId].emit('receiveRoom', {room: dbReturn.object});
-								wasSentSuccessful = true;
-							}
-						}
-					
-						if(!wasSentSuccessful){
-							userIdToSockets[session.userId].emit('error', {error: "You are not a part of the room you are requesting."});
-						}
-					}else{
-						userIdToSockets[session.userId].emit('error', {error: dbRetusr.error});
-					}
-				}
-			}
-		});
-	});
-
-	socket.on('getMessage', (msg) => {
-		msg = JSON.parse(msg);
-	
-		store.get(msg.sessionId, (error, session) => {
-			if(session.userId){
-				if(userIdToSockets[session.userId]){
-					let dbReturn = dbFunctions.loadMessage(msg.messageId);
-					if(dbReturn.success){
-						let roomReturn = dbFunctions.loadRoom(dbReturn.object.roomId);
-						if(roomReturn.success){
-							let theRoom = roomReturn.object;
-							let wasSentSuccessful = false;
-							for(let i = 0; i < theRoom.brMembers; i++){
-								if(theRoom.memberIds[i] == session.userId){
-									userIdToSockets[session.userId].emit('receivedMessage', {message: dbReturn.object});
-									wasSentSuccessful = true;
-								}
-							}
-							
-							if(!wasSentSuccessful){
-								userIdToSockets[session.userId].emit('error', {error: "You are not a part of the room you are requesting the message from."});
-							}
+					dbFunctions.loadLog(msg.logId)
+					.then(function (dbReturn){
+						if(dbReturn.success){
+							userIdToSockets[session.userId].emit('receivedLog', {log: dbReturn.object});
 						}else{
-							userIdToSockets[session.userId].emit('error', {error: roomReturn.error});
+							userIdToSockets[session.userId].emit('error', {error: dbReturn.error});
 						}
-					}else{
-						userIdToSockets[session.userId].emit('error', {error: dbReturn.error});
-					}
+					});
 				}
 			}
 		});
 	});
 
-	socket.on('createRoom', (msg) => {
+	socket.on('getLogs', (msg) => {
 		msg = JSON.parse(msg);
-	
+
 		store.get(msg.sessionId, (error, session) => {
 			if(session.userId){
 				if(userIdToSockets[session.userId]){
-					let dbReturn = dbFunctions.createRoom(session.userId, msg.memberIds);
-					if(dbReturn.success){
-						let theRoom = dbReturn.object;
-
-						for(let i = 0; i < theRoom.brMembers; i++){
-							userIdToSockets[theRoom.memberIds[i]].emit('receiveRoom', {room: dbReturn.object});
-						}
-					}else{
-						userIdToSockets[session.userId].emit('error', dbReturn);
-					}
-				}
-			}
-		});
-	});
-
-	socket.on('addMemberToRoom', (msg) => {
-		msg = JSON.parse(msg);
-	
-		store.get(msg.sessionId, (error, session) => {
-			if(session.userId){
-				if(userIdToSockets[session.userId]){
-					let dbReturn = dbFunctions.loadRoom(msg.roomId);
-					if(dbReturn.success){
-						let roomReturn = dbReturn.object;
-
-						let wasSentSuccessful = false;
-						for(let i = 0; i < roomReturn.brMembers; i++){
-							if(roomReturn.memberIds[i] == session.userId){
-								let dbResponse_ = dbFunctions.addMemberToRoom(session.userId, msg.userId, msg.roomId);
-								if(dbResponse_.success){
-									let theRoom = dbResponse_.object;
-									
-									for(let i = 0; i < theRoom.brMembers; i++){
-										userIdToSockets[theRoom.memberIds[i]].emit('addedMemberToRoom', {memberId: msg.memberId, roomId: msg.roomId});
-									}
-									
-									wasSentSuccessful = true;
+					dbFunctions.createLog(msg.url, checkWebsite(msg.url))
+					.then(function (dbReturn_){
+						if(dbReturn_.success){
+							dbFunctions.loadLog(msg.url, msg.brLogs)
+							.then(function (dbReturn){
+								if(dbReturn.success){
+									userIdToSockets[session.userId].emit('receivedLogs', {logs: dbReturn.object});
 								}else{
-									userIdToSockets[session.userId].emit('error', {error: dbResponse_.error});
+									userIdToSockets[session.userId].emit('error', {error: dbReturn.error});
 								}
-							}
+							});
+						}else{
+							userIdToSockets[session.userId].emit('error', {error: dbReturn_.error});
 						}
-						if(!wasSentSuccessful){
-							userIdToSockets[session.userId].emit('error', {error: "You are not a part of the room you are adding the member to."});
-						}
-					}else{
-						userIdToSockets[session.userId].emit('error', {error: dbReturn.error});
-					}
-				}
-			}
-		});
-	});
-
-	socket.on('removeMemberFromRoom', (msg) => {
-		msg = JSON.parse(msg);
-	
-		store.get(msg.sessionId, (error, session) => {
-			if(session.userId){
-				if(userIdToSockets[session.userId]){
-					let dbReturn = dbFunctions.loadRoom(msg.roomId);
-					if(dbReturn.success){
-						let roomReturn = dbReturn.object;
-
-						let wasSentSuccessful = false;
-						for(let i = 0; i < roomReturn.brMembers; i++){
-							if(roomReturn.memberIds[i] == session.userId){
-								let dbResponse_ = dbFunctions.removeMemberFromRoom(msg.userId, msg.roomId);
-								if(dbResponse_.success){
-									let theRoom = dbResponse_.object;
-									
-									for(let i = 0; i < theRoom.brMembers; i++){
-										userIdToSockets[theRoom.memberIds[i]].emit('removedMemberFromRoom', {memberId: msg.memberId, roomId: msg.roomId});
-									}
-									
-									wasSentSuccessful = true;
-								}else{
-									userIdToSockets[session.userId].emit('error', {error: dbResponse_.error});
-								}
-							}
-						}
-						if(!wasSentSuccessful){
-							userIdToSockets[session.userId].emit('error', {error: "You are not a part of the room you are removeing the member from."});
-						}
-					}else{
-						userIdToSockets[session.userId].emit('error', {error: dbReturn.error});
-					}
-				}
-			}
-		});
-	});
-
-	socket.on('changeRoomName', (msg) => {
-		msg = JSON.parse(msg);
-	
-		store.get(msg.sessionId, (error, session) => {
-			if(session.userId){
-				if(userIdToSockets[session.userId]){
-					let dbReturn = dbFunctions.loadRoom(msg.roomId);
-					if(dbReturn.success){
-						let roomReturn = dbReturn.object;
-
-						let wasSentSuccessful = false;
-						for(let i = 0; i < roomReturn.brMembers; i++){
-							if(roomReturn.memberIds[i] == session.userId){
-								let dbResponse_ = dbFunctions.removeMemberFromRoom(msg.userId, msg.roomId);
-								if(dbResponse_.success){
-									let theRoom = dbResponse_.object;
-									
-									for(let i = 0; i < theRoom.brMembers; i++){
-										userIdToSockets[theRoom.memberIds[i]].emit('changedRoomName', {newName: msg.newName, roomId: msg.roomId});
-									}
-									
-									wasSentSuccessful = true;
-								}else{
-									userIdToSockets[session.userId].emit('error', {error: dbResponse_.error});
-								}
-							}
-						}
-						if(!wasSentSuccessful){
-							userIdToSockets[session.userId].emit('error', {error: "You are not a part of the room you are changing the name of."});
-						}
-					}else{
-						userIdToSockets[session.userId].emit('error', {error: dbReturn.error});
-					}
-				}
-			}
-		});
-	});
-
-	socket.on('newMessage', (msg) => {
-		msg = JSON.parse(msg);
-	
-		store.get(msg.sessionId, (error, session) => {
-			if(session.userId){
-				if(userIdToSockets[session.userId]){
-					let dbReturn = dbFunctions.loadRoom(msg.roomId);
-					if(dbReturn.success){
-						let theRoom = dbReturn.object;
-
-						let wasSentSuccessful = false;
-						for(let i = 0; i < theRoom.brMembers; i++){
-							if(theRoom.memberIds[i] == session.userId){
-								let dbReturn_ = dbFunctions.newMessage(session.userId, msg.roomId, msg.messageContent);
-
-								if(dbReturn_.success){
-									for(let i = 0; i < theRoom.brMembers; i++){
-										userIdToSockets[theRoom.memberIds[i]].emit('receivedMessage', {message: dbReturn_.object});
-									}
-								}else{
-									userIdToSockets[session.userId].emit('error', {error: roomReturn_.error});
-								}
-
-								wasSentSuccessful = true;
-							}
-						}
-
-						if(!wasSentSuccessful){
-							userIdToSockets[session.userId].emit('error', {error: "You are not a part of the room you are trying to send the message to."});
-						}
-					}else{
-						userIdToSockets[session.userId].emit('error', {error: dbReturn.error});
-					}
-				}
-			}
-		});
-	});
-
-	socket.on('removeMessage', (msg) => {
-		msg = JSON.parse(msg);
-	
-		store.get(msg.sessionId, (error, session) => {
-			if(session.userId){
-				if(userIdToSockets[session.userId]){
-					let dbReturn = dbFunctions.loadRoom(msg.roomId);
-					if(dbReturn.success){
-						let theRoom = dbReturn.object;
-
-						let wasSentSuccessful = false;
-						for(let i = 0; i < theRoom.brMembers; i++){
-							if(theRoom.memberIds[i] == session.userId){
-								let messageResponse = dbFunctions.loadMessage(msg.messageId);
-								if(messageResponse.success){
-									if(messageResponse.object.sentById == session.userId){
-										for(let i = 0; i < theRoom.brMembers; i++){
-											userIdToSockets[theRoom.memberIds[i]].emit('removedMessage', {messageId: msg.messageId, roomId: msg.roomId});
-										}
-									}else{
-										userIdToSockets[session.userId].emit('error', {error: "This message was not sent by you. You cannot remove it."});
-									}
-								}else{
-									userIdToSockets[session.userId].emit('error', {error: messageResponse.error});
-								}
-							}
-						}
-
-						if(!wasSentSuccessful){
-							userIdToSockets[session.userId].emit('error', {error: "You are not a part of the room you are trying to remove the message from."});
-						}
-					}else{
-						userIdToSockets[session.userId].emit('error', {error: dbReturn.error});
-					}
-				}
-			}
-		});
-	});
-
-	socket.on('editMessage', (msg) => {
-		msg = JSON.parse(msg);
-	
-		store.get(msg.sessionId, (error, session) => {
-			if(session.userId){
-				if(userIdToSockets[session.userId]){
-					let dbReturn = dbFunctions.loadRoom(msg.roomId);
-					if(dbReturn.success){
-						let theRoom = dbReturn.object;
-
-						let wasSentSuccessful = false;
-						for(let i = 0; i < theRoom.brMembers; i++){
-							if(theRoom.memberIds[i] == session.userId){
-								let messageResponse = dbFunctions.loadMessage(msg.messageId);
-								if(messageResponse.success){
-									if(messageResponse.object.sentById == session.userId){
-										for(let i = 0; i < theRoom.brMembers; i++){
-											userIdToSockets[theRoom.memberIds[i]].emit('editedMessage', {messageId: msg.messageId, roomId: msg.roomId, newMessage: msg.newMessage});
-										}
-									}else{
-										userIdToSockets[session.userId].emit('error', {error: "This message was not sent by you. You cannot edit it."});
-									}
-								}else{
-									userIdToSockets[session.userId].emit('error', {error: messageResponse.error});
-								}
-							}
-						}
-
-						if(!wasSentSuccessful){
-							userIdToSockets[session.userId].emit('error', {error: "You are not a part of the room you are trying to edit the message of."});
-						}
-					}else{
-						userIdToSockets[session.userId].emit('error', {error: dbReturn.error});
-					}
-				}
-			}
-		});
-	});
-
-	socket.on('changeUsername', (msg) => {
-		msg = JSON.parse(msg);
-	
-		store.get(msg.sessionId, (error, session) => {
-			if(session.userId){
-				if(userIdToSockets[session.userId]){
-					let dbReturn = dbFunctions.changeUsername(session.userId, msg.newUsername);
-					if(dbReturn.success){
-						userIdToSockets[session.userId].emit('changedUsername', {newUsername: msg.newUsername});
-					}else{
-						userIdToSockets[session.userId].emit('error', {error: dbReturn.error});
-					}
-				}
-			}
-		});
-	});
-
-	socket.on('changePassword', (msg) => {
-		msg = JSON.parse(msg);
-	
-		store.get(msg.sessionId, (error, session) => {
-			if(session.userId){
-				if(userIdToSockets[session.userId]){
-					let dbReturn = dbFunctions.changePassword(session.userId, msg.oldPassword, msg.newPassword);
-					if(dbReturn.success){
-						userIdToSockets[session.userId].emit('changedPassword', {message: "Password was succesfully changed."});
-					}else{
-						userIdToSockets[session.userId].emit('error', {error: dbReturn.error});
-					}
-				}
-			}
-		});
-	});
-
-	socket.on('changeInfo', (msg) => {
-		msg = JSON.parse(msg);
-	
-		store.get(msg.sessionId, (error, session) => {
-			if(session.userId){
-				if(userIdToSockets[session.userId]){
-					let dbReturn = dbFunctions.changeUserInfo(session.userId, msg.infoParameter, msg.newInfo);
-					if(dbReturn.success){
-						userIdToSockets[session.userId].emit('changedInfo',  {infoParameter: msg.infoParameter, newInfo: msg.newInfo});
-					}else{
-						userIdToSockets[session.userId].emit('error', {error: dbReturn.error});
-					}
-				}
-			}
-		});
-	});
-
-	socket.on('becomeVisible', (msg) => {
-		msg = JSON.parse(msg);
-
-		store.get(msg.sessionId, (error, session) => {
-			if(session.userId){
-				if(userIdToSockets[session.userId]){
-					let isUserAlreadyVisible = false;
-
-					for(let i = 0; i < visibleUsers.length(); i++){
-						if(visibleUsers[i] == session.userId){
-							isUserAlreadyVisible = true;
-						}
-					}
-
-					if(isUserAlreadyVisible = false){
-						visibleUsers.push(session.userId);
-					}
-					userIdToSockets[session.userId].emit('youBecameVisible');
-				}
-			}
-		});
-	});
-
-	socket.on('becomeInvisible', (msg) => {
-		msg = JSON.parse(msg);
-
-		store.get(msg.sessionId, (error, session) => {
-			if(session.userId){
-				if(userIdToSockets[session.userId]){
-					for(let i = 0; i < visibleUsers.length(); i++){
-						if(visibleUsers[i] == session.userId){
-							visibleUsers[i] = visibleUsers[visibleUsers.length()-1];
-							visibleUsers.pop();
-							userIdToSockets[session.userId].emit('youBecameInvisible', {});
-						}
-					}
-				}
-			}
-		});
-	});
-
-	socket.on('getVisiblePlayers', (msg) => {
-		msg = JSON.parse(msg);
-
-		store.get(msg.sessionId, (error, session) => {
-			if(session.userId){
-				if(userIdToSockets[session.userId]){
-					userIdToSockets[session.userId].emit('receivedVisablePlayers', {visible: visibleUsers});
+					});
 				}
 			}
 		});
@@ -570,5 +256,5 @@ db.any('SELECT * FROM encrypted_key')
 	decryptKey(key)
 	.then (function (result) {
 		key = fromBytesToString(result);
-	})
+	});
 });
