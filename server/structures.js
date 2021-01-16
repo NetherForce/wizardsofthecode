@@ -4,7 +4,7 @@ class User{
     constructor(){
         this.id;
         this.username;
-        this.urls = {}; // and object that contains the urls that the user tracks
+        this.urls = []; // and object that contains the urls that the user tracks
     }
 }
 exports.User = User;
