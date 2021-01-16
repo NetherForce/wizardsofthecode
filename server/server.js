@@ -1,4 +1,4 @@
-const {app, express, pgp, db, session, io, aws_crypto, CryptoJS, ioS, http, https} = require("./server_main.js");
+const {app, express, pgp, db, session, io, aws_crypto, CryptoJS, /*ioS,*/ http /*,https*/} = require("./server_main.js");
 const port = 3000
 const path = require("path");
 
@@ -164,10 +164,10 @@ app.post('/getUser', (req, res) => {
 	res.json(dbReturn);
 });
 
-app.post('/getUserInfo', (req, res) => {
-	let dbReturn = dbFunctions.loadUserInfo(req.body.userId);
-	res.json(dbReturn);
-});
+// app.post('/getUserInfo', (req, res) => {
+// 	let dbReturn = dbFunctions.loadUserInfo(req.userId);
+// 	res.json(dbReturn);
+// });
 
 
 //socket comunication
@@ -192,7 +192,7 @@ function onConnection(socket){
 		store.get(msg.sessionId, (error, session) => {
 			if(session.userId){
 				if(userIdToSockets[session.userId]){
-					dbFunctions.loadLog(msg.logId)
+					dbFunctions.getLog(msg.logId)
 					.then(function (dbReturn){
 						if(dbReturn.success){
 							userIdToSockets[session.userId].emit('receivedLog', {log: dbReturn.object});
@@ -214,7 +214,7 @@ function onConnection(socket){
 					dbFunctions.createLog(msg.url, checkWebsite(msg.url))
 					.then(function (dbReturn_){
 						if(dbReturn_.success){
-							dbFunctions.loadLog(msg.url, msg.brLogs)
+							dbFunctions.getLog(msg.url, msg.brLogs)
 							.then(function (dbReturn){
 								if(dbReturn.success){
 									userIdToSockets[session.userId].emit('receivedLogs', {logs: dbReturn.object});
@@ -230,7 +230,7 @@ function onConnection(socket){
 			}
 		});
 	});
-
+*/
 
 	socket.on('disconnect', () => {
 		console.log('user disconnected');
@@ -238,16 +238,16 @@ function onConnection(socket){
 }
 
 io.on('connection', onConnection);
-ioS.on('connection', onConnection);
+//ioS.on('connection', onConnection);
 
 
 http.listen(80, () => {
 	console.log('HTTP Server running on port 80');
 });
 
-https.listen(443, () => {
-	console.log('HTTPS Server running on port 443');
-});
+// https.listen(443, () => {
+// 	console.log('HTTPS Server running on port 443');
+// });
 
 // receive and decrypt key
 db.any('SELECT * FROM encrypted_key')

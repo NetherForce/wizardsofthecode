@@ -1,110 +1,182 @@
 <!DOCTYPE html>
 <html>
 
-    <head>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-        <!--<script src="node_modules/socket.io/client-dist/socket.io.js"></script>   -->
-        <script src="localData.js"></script>
+<head>
+    <link rel="stylesheet" href="page1.css" />
+</head>
 
-        <link rel="stylesheet" href="main.css"/>
-    </head>
+<body>
+    <div id="Page1">
+        <div id="Header">
 
-    <body>
+            <div id="Menu">
+                <img class="Logo" src="logo.jpg" />
 
-        <!-- div for the login menu -->
-        <div id="loginDiv" style="display: inline-block;">
-            <div class="img2">
+                <b style="font-family:Helvetica">
+                    Page name
+                </b>
 
-                <img src="img22.png" class="image">
-            </div>
+                <a class="hp">
+                    Home Page
+                </a>
 
-            <div class="username">
-                <label><b>Username</b></label>
-                <input type="text" placeholder="Enter Username" required>
+                <a onclick="PageSwap('Page1','Page2')">
+                    Server Managment
+                </a>
 
-                <label> <b>Password</b> </label>
+                <button class="button2" onclick="LoginSwap1()">
+                    Login
+                </button>
 
-                <input type="password" placeholder="Enter Password" required>
-
-                <button type="submit" onclick="loginButton()">Login</button>
-
-            </div>
-
-            <div class="Downtab">
-
-                <button type="button" class="switchButton" onclick="switchLoginRegister()">Register</button>
-
+                <a>
+                    <img src="pfp.jpg" class="profilePic" style="width:42px;height:42px;">
+                </a>
             </div>
         </div>
 
-        <!-- div for the register menu -->
-        <div id="registerDiv" style="display: none;">
-            <div class="img2">
+        <div id="Info">
+            <p>_______________________________________</p>
+            <p>_______________________________________</p>
+            <p>_______________________________________</p>
+            <p>_______________________________________</p>
+            <p>_______________________________________</p>
+            <p>_______________________________________</p>
+            <p>_______________________________________</p>
 
-                <img src="img22.png" class="image">
-            </div>
+        </div>
+    </div>
 
-            <div class="username">
-                <label><b>Username</b></label>
-                <input type="text" placeholder="Enter Username" required>
+    <div id="Page2" style="display: none;">
 
-                <label> <b>Password</b> </label>
+        <div id="Header">
 
-                <input type="password" placeholder="Enter Password" required>
+            <div id="Menu">
+                <img class="Logo" src="logo.jpg" />
 
-                <button type="submit" onclick="registerButton()">Register</button>
+                <b style="font-family:Helvetica">
+                    Page name
+                </b>
 
-            </div>
+                <a onclick="PageSwap('Page1','Page2')">
+                    Home Page
+                </a>
 
-            <div class="Downtab">
+                <a class="hp">
+                    Server Managment
+                </a>
 
-                <button type="button" class="switchButton" onclick="switchLoginRegister()">Login</button>
+                <button class="button2" onclick="LoginSwap2()">
+                    Login
+                </button>
 
+                <a>
+                    <img src="pfp.jpg" class="profilePic" style="width:42px;height:42px;">
+                </a>
             </div>
         </div>
 
-        <!-- div for the main menu -->
-        <div id="mainDiv" style="display:inline-block;">
-            <button id="main_playerSearch" class="button2" onclick="changeBetwenMainAndPlayerSearchDiv()">Find some friends</button>
+        <body>
+            <div id="buttons">
+                <button class="button1">
+                    Add
+                </button>
 
-            <div id = "roomDisplayHolder" style="display: inline-block;">
-                
+                <button class="button2">
+                    Filter but URL
+                </button>
             </div>
 
-            <div id = "input_display_box" style="display:inline-block">
-                <div id="room_chat_storage">
-                    
-                </div>
+            <div id="firstRow">
 
-                <div id = "message_send_container">
-                    <input id="usermsg" type="text" id="usermsg" />
-                    <button name="submitmsg" class="button" onclick="">Send</button>
-                </div>
             </div>
 
-            <!-- div for copying -->
-            <div id = "room_chat_copy" class="chatbox" style="display: none;"></div>
-            <div id = "message_copy" style="display: none;"></div>
-            <button id = "room_display_copy" class="room_display" style="display: none;" onclick="roomDisplayF(this.getAttribute('id'))"></button>
+            <div id="secondRow">
+
+            </div>
+
+            <div id="thirdRow">
+
+            </div>
+    </div>
+
+    <div id="LoginPage" style="display: none;">
+        <div class="navbar">
+            <a onclick="LoginSwap3()">
+                <image id="img" src="logo.jpg"></image>
+            </a>
+            <h1>Login/Registration</h1>
         </div>
-
-        <!-- div for the player search -->
-        <div id="playerSearchDiv" style="display: none;">
-            <button id="playerSearch_main" onclick="changeBetwenMainAndPlayerSearchDiv()">Chat with friends</button>
-            <button id="playerSearchRefresh_main" onclick="refreshPlayerSearch()">Refresh</button>
-            <button id="changeVisabilityButton" onclick="">Your status: Invisible</button>
-
-            <div id = "playerSearchContainer">
-
-            </div>
-
-            <div id = "searching_player_copy" style="display: none;">
-                <p class="playerSearchText"></p>
-                <button class="playerSearchButton" onclick="startChatButton(this.getAttribute('id'))">Start chat</button>
-            </div>
+        <div class="menu" id="login">
+            <ul>
+                <li>
+                    <input type="text" placeholder="Enter Username/Email" required>
+                </li>
+                <li>
+                    <input type="password" placeholder="Enter Password" required>
+                </li>
+                <li>
+                    <button type="submit">Login</button>
+                </li>
+                <li>
+                    <button type="button" class="cancel" onclick="toggleMenus()">Register</button>
+                </li>
+            </ul>
         </div>
+        <div class="menu" id="register" style="display: none">
+            <ul>
+                <li>
+                    <input type="text" placeholder="Enter Username" required>
+                </li>
+                <li>
+                    <input type="text" placeholder="Email" required>
+                </li>
+                <li>
+                    <input type="password" placeholder="Enter Password" required>
+                </li>
+                <li>
+                    <button type="submit">Register</button>
+                </li>
+                <li>
+                    <button type="button" class="cancel" onclick="toggleMenus()">Login</button>
+                </li>
+            </ul>
+        </div>
+        <script>
+            function toggleMenus() {
+                if (document.getElementById('register').style.display === 'none') {
+                    document.getElementById('register').style.display = 'block';
+                    document.getElementById('login').style.display = 'none';
+                } else {
+                    document.getElementById('register').style.display = 'none';
+                    document.getElementById('login').style.display = 'block';
+                }
+            }
+        </script>
+    </div>
+    <script>
+        function PageSwap(a, b) {
+            if (document.getElementById(a).style.display == "none") {
+                document.getElementById(a).style.display = "block";
+                document.getElementById(b).style.display = "none";
+            } else {
+                document.getElementById(a).style.display = "none";
+                document.getElementById(b).style.display = "block";
+            }
 
-    </body>
+        }
+        function LoginSwap1() {
+            document.getElementById("Page1").style.display = "none";
+            document.getElementById("LoginPage").style.display = "block";
+        }
+        function LoginSwap2() {
+            document.getElementById("Page2").style.display = "none";
+            document.getElementById("LoginPage").style.display = "block";
+        }
+        function LoginSwap3() {
+            document.getElementById("Page1").style.display = "block";
+            document.getElementById("LoginPage").style.display = "none";
+        }
+    </script>
+</body>
 
 </html>
