@@ -1,4 +1,4 @@
-const {app, express, pgp, db, session, io, aws_crypto, CryptoJS, ioS, http, https} = require("./server_main.js");
+const {app, express, pgp, db, session, io, aws_crypto, CryptoJS, /*ioS,*/ http /*,https*/} = require("./server_main.js");
 const port = 3000
 const path = require("path");
 
@@ -106,10 +106,10 @@ app.post('/getUser', (req, res) => {
 	res.json(dbReturn);
 });
 
-app.post('/getUserInfo', (req, res) => {
-	let dbReturn = dbFunctions.loadUserInfo(req.userId);
-	res.json(dbReturn);
-});
+// app.post('/getUserInfo', (req, res) => {
+// 	let dbReturn = dbFunctions.loadUserInfo(req.userId);
+// 	res.json(dbReturn);
+// });
 
 
 //socket comunication
@@ -128,7 +128,7 @@ function onConnection(socket){
 		});
 	});
 
-	socket.on('getRoom', (msg) => {
+	/*socket.on('getRoom', (msg) => {
 		msg = JSON.parse(msg);
 	
 		store.get(msg.sessionId, (error, session) => {
@@ -544,7 +544,7 @@ function onConnection(socket){
 			}
 		});
 	});
-
+*/
 
 	socket.on('disconnect', () => {
 		console.log('user disconnected');
@@ -552,16 +552,16 @@ function onConnection(socket){
 }
 
 io.on('connection', onConnection);
-ioS.on('connection', onConnection);
+//ioS.on('connection', onConnection);
 
 
 http.listen(80, () => {
 	console.log('HTTP Server running on port 80');
 });
 
-https.listen(443, () => {
-	console.log('HTTPS Server running on port 443');
-});
+// https.listen(443, () => {
+// 	console.log('HTTPS Server running on port 443');
+// });
 
 // receive and decrypt key
 db.any('SELECT * FROM encrypted_key')

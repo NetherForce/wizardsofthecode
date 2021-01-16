@@ -4,7 +4,7 @@ class User{
     constructor(){
         this.id;
         this.username;
-        this.urls = []; // and object that contains the urls that the user tracks
+        this.urls = {}; //object that contains true or false dependig on weather the user wants to show these url results (client side can filter urls) | url is equal to true or false
     }
 }
 exports.User = User;
