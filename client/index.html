@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        <!--<script src="node_modules/socket.io/client-dist/socket.io.js"></script>   -->
+        <script src="localData.js"></script>
+
+        <link rel="stylesheet" href="main.css"/>
+    </head>
+
+    <body>
+
+        <!-- div for the login menu -->
+        <div id="loginDiv" style="display: inline-block;">
+            <div class="img2">
+
+                <img src="img22.png" class="image">
+            </div>
+
+            <div class="username">
+                <label><b>Username</b></label>
+                <input type="text" placeholder="Enter Username" required>
+
+                <label> <b>Password</b> </label>
+
+                <input type="password" placeholder="Enter Password" required>
+
+                <button type="submit" onclick="loginButton()">Login</button>
+
+            </div>
+
+            <div class="Downtab">
+
+                <button type="button" class="switchButton" onclick="switchLoginRegister()">Register</button>
+
+            </div>
+        </div>
+
+        <!-- div for the register menu -->
+        <div id="registerDiv" style="display: none;">
+            <div class="img2">
+
+                <img src="img22.png" class="image">
+            </div>
+
+            <div class="username">
+                <label><b>Username</b></label>
+                <input type="text" placeholder="Enter Username" required>
+
+                <label> <b>Password</b> </label>
+
+                <input type="password" placeholder="Enter Password" required>
+
+                <button type="submit" onclick="registerButton()">Register</button>
+
+            </div>
+
+            <div class="Downtab">
+
+                <button type="button" class="switchButton" onclick="switchLoginRegister()">Login</button>
+
+            </div>
+        </div>
+
+        <!-- div for the main menu -->
+        <div id="mainDiv" style="display:inline-block;">
+            <button id="main_playerSearch" class="button2" onclick="changeBetwenMainAndPlayerSearchDiv()">Find some friends</button>
+
+            <div id = "roomDisplayHolder" style="display: inline-block;">
+                
+            </div>
+
+            <div id = "input_display_box" style="display:inline-block">
+                <div id="room_chat_storage">
+                    
+                </div>
+
+                <div id = "message_send_container">
+                    <input id="usermsg" type="text" id="usermsg" />
+                    <button name="submitmsg" class="button" onclick="">Send</button>
+                </div>
+            </div>
+
+            <!-- div for copying -->
+            <div id = "room_chat_copy" class="chatbox" style="display: none;"></div>
+            <div id = "message_copy" style="display: none;"></div>
+            <button id = "room_display_copy" class="room_display" style="display: none;" onclick="roomDisplayF(this.getAttribute('id'))"></button>
+        </div>
+
+        <!-- div for the player search -->
+        <div id="playerSearchDiv" style="display: none;">
+            <button id="playerSearch_main" onclick="changeBetwenMainAndPlayerSearchDiv()">Chat with friends</button>
+            <button id="playerSearchRefresh_main" onclick="refreshPlayerSearch()">Refresh</button>
+            <button id="changeVisabilityButton" onclick="">Your status: Invisible</button>
+
+            <div id = "playerSearchContainer">
+
+            </div>
+
+            <div id = "searching_player_copy" style="display: none;">
+                <p class="playerSearchText"></p>
+                <button class="playerSearchButton" onclick="startChatButton(this.getAttribute('id'))">Start chat</button>
+            </div>
+        </div>
+
+    </body>
+
+</html>
