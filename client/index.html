@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <link rel="stylesheet" href="main.css"/>
+    <link rel="stylesheet" href="main.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script src="/socket_io/socket.io.js"></script>
@@ -24,6 +24,10 @@
                     Home Page
                 </a>
 
+                <a onclick="PageSwap3()">
+                    Check Url
+                </a>
+
                 <a onclick="PageSwap('Page1','Page2')">
                     Logs
                 </a>
@@ -39,8 +43,8 @@
         </div>
 
         <div id="Info">
-            <p>URL Monitor is a service delivered by Wizards of the Code for tracking your online services' 
-availability at every moment.</p>    
+            <p>URL Monitor is a service delivered by the Wizards of the Code for tracking your online services'
+                availability at every moment.</p>
         </div>
     </div>
 
@@ -57,6 +61,10 @@ availability at every moment.</p>
 
                 <a onclick="PageSwap('Page1','Page2')">
                     Home Page
+                </a>
+
+                <a onclick="PageSwap4()">
+                    Check Url
                 </a>
 
                 <a class="hp">
@@ -83,9 +91,11 @@ availability at every moment.</p>
                     Filter
                 </button>
             </div>
+
             <div id="filterMenu" style="display: none">
                 <p>wkffw</p>
             </div>
+
             <div id="logListWrapper">
                 <ul id="logListUl">
                 </ul>
@@ -146,30 +156,76 @@ availability at every moment.</p>
             }
         </script>
     </div>
+
+    <div id="Page3" style="display: none;">
+        <div id="Header">
+
+            <div id="Menu">
+                <img class="Logo" src="logo.png" />
+
+                <b style="font-family:Helvetica">
+                    URL Monitor
+                </b>
+
+                <a onclick="PageSwap('Page1','Page3')">
+                    Home Page
+                </a>
+
+                <a class="hp">
+                    Check Url
+                </a>
+
+                <a onclick="PageSwap('Page2','Page3')">
+                    Logs
+                </a>
+
+                <button class="button2" onclick="LoginSwap1()">
+                    Login
+                </button>
+
+                <a>
+                    <img src="pfp.jpg" class="profilePic" style="width:42px;height:42px;">
+                </a>
+            </div>
+        </div>
+
+                <div id="Content">
+                    <a>Enter Url:</a>
+
+                    <input id="Url"> </input>
+
+                    <button id="Logs"> Get Logs</button>
+                </div>
+
+                <div id="ContentDiv">
+                    
+                </div>
+    </div>
+
     <script>
         function PageSwap(a, b) {
             //uncomment after testing
-//            if ((a == 'Page2' || b == 'Page2') && user == null) {
-//                if (a == 'Page2') {
-//                    PageSwap(b, 'LoginPage');
-//                } else {
-//                    PageSwap(a, 'LoginPage');
-//                }
-//            } else if (document.getElementById(a).style.display == "none") {
-//                    document.getElementById(a).style.display = "block";
-//                    document.getElementById(b).style.display = "none";
-//            } else {
-//                document.getElementById(a).style.display = "none";
-//                document.getElementById(b).style.display = "block";
-//            }
+            //            if ((a == 'Page2' || b == 'Page2') && user == null) {
+            //                if (a == 'Page2') {
+            //                    PageSwap(b, 'LoginPage');
+            //                } else {
+            //                    PageSwap(a, 'LoginPage');
+            //                }
+            //            } else if (document.getElementById(a).style.display == "none") {
+            //                    document.getElementById(a).style.display = "block";
+            //                    document.getElementById(b).style.display = "none";
+            //            } else {
+            //                document.getElementById(a).style.display = "none";
+            //                document.getElementById(b).style.display = "block";
+            //            }
             if (document.getElementById(a).style.display == "none") {
-                    document.getElementById(a).style.display = "block";
-                    document.getElementById(b).style.display = "none";
-                } else {
-                    document.getElementById(a).style.display = "none";
-                    document.getElementById(b).style.display = "block";
-                }
+                document.getElementById(a).style.display = "block";
+                document.getElementById(b).style.display = "none";
+            } else {
+                document.getElementById(a).style.display = "none";
+                document.getElementById(b).style.display = "block";
             }
+        }
         function LoginSwap1() {
             document.getElementById("Page1").style.display = "none";
             document.getElementById("LoginPage").style.display = "block";
@@ -199,6 +255,14 @@ availability at every moment.</p>
             let email = document.getElementById('emailInput1').value;
             let password = document.getElementById('passwordInput2').value;
             register(username, email, password);
+        }
+        function PageSwap3() {
+            document.getElementById("Page1").style.display = "none";
+            document.getElementById("Page3").style.display = "block";
+        }
+        function PageSwap4() {
+            document.getElementById("Page2").style.display = "none";
+            document.getElementById("Page3").style.display = "block";
         }
     </script>
 </body>
