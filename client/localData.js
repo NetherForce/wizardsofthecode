@@ -133,9 +133,7 @@ function register(username, email, password){
 			if(response.success) {
                 user = new User();
                 updateObj(user, response.object);
-                loadedUsers[user.id] = user;
                 sessionId = response.sessionId;
-                socket.emit('allthenticate', {sessionId: sessionId});
                 console.log(sessionId);
         
                 onRegister();
@@ -164,10 +162,9 @@ function login(username, password){ //username could be email
 			if(response.success) {
                 user = new User();
                 updateObj(user, response.object);
-                loadedUsers[user.id] = user;
                 user.password = password;
                 sessionId = response.sessionId;
-                socket.emit('allthenticate', {sessionId: sessionId});
+                socket.emit('allthenticate', JSON.stringify({sessionId: sessionId}));
                 console.log(sessionId);
 
                 onLogin();
@@ -197,7 +194,6 @@ function getUser(userId){
                 if(response.success) {
                     let newUser = new User();
                     updateObj(newUser, response.object);
-                    loadedUsers[userId] = newUser;
                     loadURLs();
                 }
                 else {
@@ -228,7 +224,7 @@ function getLog(logId){
 
 function getLogs(url, brLogs){ //returns brLogs Logs (ot as many as there are) + makes a new log for the current server state
     if(user != null){
-        socket.emit('getLogs', {sessionId: sessionId, url: url, brLogs: brLogs});
+        socket.emit('getLogs', JSON.stringify({sessionId: sessionId, url: url, brLogs: brLogs}));
     }else{
         alert("You must login/register.");
     }
@@ -236,7 +232,7 @@ function getLogs(url, brLogs){ //returns brLogs Logs (ot as many as there are) +
 
 function addUrl(url){ //adds url to the urls you want to track
     if(user != null){
-        socket.emit('addUrl', {sessionId: sessionId, url: url});
+        socket.emit('addUrl', JSON.stringify({sessionId: sessionId, url: url}));
     }else{
         alert("You must login/register.");
     }
@@ -244,7 +240,7 @@ function addUrl(url){ //adds url to the urls you want to track
 
 function removeUrl(url){ //removes url from the urls you track
     if(user != null){
-        socket.emit('removeUrl', {sessionId: sessionId, url: url});
+        socket.emit('removeUrl', JSON.stringify({sessionId: sessionId, url: url}));
     }else{
         alert("You must login/register.");
     }

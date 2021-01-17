@@ -214,7 +214,6 @@ async function login(username_email, password){
     return returnV;
 }
 exports.login = login;
-login("Test2", "parola")
 
 async function verifyUser(token, userId){
     //verifies user

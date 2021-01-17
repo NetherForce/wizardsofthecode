@@ -108,7 +108,7 @@ function logUrls(){
 				for (const [key_, value_] of Object.entries(value)){
 					if(dbReturn.success){
 						if(value_){
-							userIdToSockets(key_).emit('receivedLog', {log: dbReturn.object});
+							userIdToSockets(key_).emit('receivedLog', JSON.stringify({log: dbReturn.object}));
 							if(sentEmails[key][key_]){
 								dbFunctions.loadEmail(key_)
 								.then(function (dbReturn_){
@@ -133,7 +133,7 @@ function logUrls(){
 							}
 						}
 					}else{
-						userIdToSockets(key_).emit('error', {error: dbReturn.error});
+						userIdToSockets(key_).emit('error', JSON.stringify({error: dbReturn.error}));
 					}
 				}
 			});
@@ -204,14 +204,13 @@ app.post('/createUser', (req, res) => {
 	dbFunctions.newUser(req.body.username, req.body.email, req.body.password, token)
 	.then(function (dbReturn){
 		if(dbReturn.success){
-			req.body.session.userId = dbReturn.object.id;
-			dbReturn.sessionId = req.body.session.id;
+			console.log(dbReturn.object.id);
 
-			const data = { 'id': dbReturn.id, 'token': token };
+			const data = { 'id': dbReturn.object.id, 'token': token };
 			let sign = encodeQueryData(data);
 
 			let link = "https://wizardsofthecode.online/verify/" + sign;
-			console.log("Email link: " + link);
+			console.log(link);
 			transporter.sendMail({
 				from: "" + email, // sender address
 				to: "" + req.body.email, // list of receivers
@@ -223,17 +222,16 @@ app.post('/createUser', (req, res) => {
 				console.log("Info: ", info);
 			});
 		}
-		console.log(dbReturn);
 		res.json(dbReturn);
 	});
 });
 
 app.post('/login', (req, res) => {
-	let dbReturn = dbFunctions.login(req.body.username, req.body.password)
+	dbFunctions.login(req.body.username, req.body.password)
 	.then(function (dbReturn){
 		if(dbReturn.success){
-			req.body.session.userId = dbReturn.object.id;
-			dbReturn.sessionId = req.body.session.id;
+			//req.body.session.userId = dbReturn.object.id;
+			dbReturn.sessionId = req.body.sessionId;
 
 			let user = req.body.object;
 			for (let url in user.urls) {
@@ -286,6 +284,7 @@ app.post('/getUser', (req, res) => {
 function onConnection(socket){
 
 	socket.on('allthenticate', (msg) => {
+		console.log(msg);
 		msg = JSON.parse(msg);
 
 		store.get(msg.sessionId, (error, session) => {
@@ -329,13 +328,13 @@ function onConnection(socket){
 							dbFunctions.getLog(msg.url, msg.brLogs)
 							.then(function (dbReturn){
 								if(dbReturn.success){
-									userIdToSockets[session.userId].emit('receivedLogs', {logs: dbReturn.object});
+									userIdToSockets[session.userId].emit('receivedLogs', JSON.stringify({logs: dbReturn.object}));
 								}else{
-									userIdToSockets[session.userId].emit('error', {error: dbReturn.error});
+									userIdToSockets[session.userId].emit('error', JSON.stringify({error: dbReturn.error}));
 								}
 							});
 						}else{
-							userIdToSockets[session.userId].emit('error', {error: dbReturn_.error});
+							userIdToSockets[session.userId].emit('error', JSON.stringify({error: dbReturn_.error}));
 						}
 					});
 				}
@@ -352,9 +351,9 @@ function onConnection(socket){
 					dbFunctions.addUrlToUser(session.userId, msg.url)
 					.then(function (dbReturn){
 						if(dbReturn_.success){
-							userIdToSockets[session.userId].emit('receivedUrl', {url: msg.url});
+							userIdToSockets[session.userId].emit('receivedUrl', JSON.stringify({url: msg.url}));
 						}else{
-							userIdToSockets[session.userId].emit('error', {error: dbReturn.error});
+							userIdToSockets[session.userId].emit('error', JSON.stringify({error: dbReturn.error}));
 						}
 					});
 				}
@@ -371,9 +370,9 @@ function onConnection(socket){
 					dbFunctions.removeUrlFromUser(session.userId, msg.url)
 					.then(function (dbReturn){
 						if(dbReturn_.success){
-							userIdToSockets[session.userId].emit('removedUrl', {url: msg.url});
+							userIdToSockets[session.userId].emit('removedUrl', JSON.stringify({url: msg.url}));
 						}else{
-							userIdToSockets[session.userId].emit('error', {error: dbReturn.error});
+							userIdToSockets[session.userId].emit('error', JSON.stringify({error: dbReturn.error}));
 						}
 					});
 				}
