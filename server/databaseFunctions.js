@@ -193,6 +193,25 @@ async function addUrlToUser(userId, url){
 }
 exports.addUrlToUser = addUrlToUser;
 
+async function removeUrlFromUser(userId, url){
+    //adds url to user
+
+    let returnV = new structures.dbReturn()
+
+    try {
+        var rows = await db.any("INSERT INTO urls (user_id, url) VALUES ($1, $2)", [userId, url])
+        returnV.success = true
+    } 
+    catch (error) {
+        returnV.success = false
+        returnV.error = error
+        console.log(error)
+    }
+    
+    return returnV;
+}
+exports.removeUrlFromUser = removeUrlFromUser;
+
 async function createLog(url, status){
     //userId - id of the user whose creates the room
     //memberIds - list of ids of the members
@@ -245,8 +264,8 @@ async function getLog(logId){
 exports.getLog = getLog;
 
 
-async function getLogs(url, numberOfLogs){
-    //roomId - id of the room that you want to load (This function doesnt load the messages or the members. Only their ids)
+async function getLogs(url, numberOfLogs, offset){
+    //returns latest logs (count of logs is equal to numberOfLogs) and skips the first few (depending on the offset)
 
     let returnV = new structures.dbReturn()
     let log = new structures.Log();
