@@ -132,10 +132,12 @@ body{
     width: 20%;
     height: 5%;
     top: 18%;
+    font-weight: bold;
 }
 #Page2 #buttons .button1:hover{
     background-color: #7a2b26;
     color: white;
+    font-weight: bold;
 
 }
 
@@ -149,11 +151,13 @@ body{
     top: 18%;
     width: 20%;
     height: 5%;
+    font-weight: bold;
 }
 
 #Page2 #buttons .button2:hover{
     background-color: #133c57 ;
     color: white;
+    font-weight: bold;
 }
 
 #Page2 #firstRow{
@@ -264,11 +268,14 @@ body{
     height: 400px;
     overflow-y: auto;
     border-radius: 8px;
+    font-size: 19px;
 }
 #Page2 #logListWrapper ul{
     list-style: none;
 }
-
+#Page2 #filterMenu{
+    background-color: red;
+}
 
 #LoginPage form {
     border: 3px solid #767272;

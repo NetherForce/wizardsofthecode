@@ -62,6 +62,14 @@ function onRecievedLog(logId){ //this function is called when a Log is received 
     li.innerText += ' | status: ' + newLog.status;
     document.getElementById('logListUl').appendChild(li);
 }
+let log = new Log();
+log.id = 0;
+log.url = 'Google.com';
+log.date = new Date();
+log.time = '11:11';
+log.status = 'ok';
+loadedLogs[log.id] = log;
+onRecievedLog(log.id);
 
 function onRecievedLogs(logIdsArr){ //this function is called when Logs are received
     //========== Nikifor
