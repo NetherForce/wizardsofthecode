@@ -51,29 +51,21 @@ function onRegister(){ //this function is called when you register
 function onRecievedLog(logId){ //this function is called when a Log is received (Log is already loaded in loadedLogs)
 
     //dobawq kum spisuka s logove
-    
-    let newLog = loadedLogs[logId];
-    let li = document.createElement("li");
-    li.id = 'log' + newLog.id;
-    li.innerText += 'id: ' + newLog.id;
-    li.innerText += ' | url: ' + newLog.url;
-    li.innerText += ' | date: ' + newLog.date;
-    li.innerText += ' | time: ' + newLog.time;
-    li.innerText += ' | status: ' + newLog.status;
-    if (!user.urls[newLog.url]) {
-        li.style.display = 'none';
+    if(user != undefined){
+        let newLog = loadedLogs[logId];
+        let li = document.createElement("li");
+        li.id = 'log' + newLog.id;
+        li.innerText += 'id: ' + newLog.id;
+        li.innerText += ' | url: ' + newLog.url;
+        li.innerText += ' | date: ' + newLog.date;
+        li.innerText += ' | time: ' + newLog.time;
+        li.innerText += ' | status: ' + newLog.status;
+        if (!user.urls[newLog.url]) {
+            li.style.display = 'none';
+        }
+        document.getElementById('logListUl').appendChild(li);
     }
-    document.getElementById('logListUl').appendChild(li);
 }
-//test log
-let log = new Log();
-log.id = 0;
-log.url = 'Google.com';
-log.date = new Date();
-log.time = '11:11';
-log.status = 'ok';
-loadedLogs[log.id] = log;
-onRecievedLog(log.id);
 
 function objSize(obj) {
   var size = 0,
@@ -102,7 +94,7 @@ function loadURLs() {
         for (key in user.urls) {
              if (user.urls.hasOwnProperty(key)) {
                 let li = document.createElement("li");
-                li.id = 'url' + newLog.id;
+                li.id = url;
                 document.getElementById('urlListUl').appendChild(li);
              }
         }
@@ -116,10 +108,15 @@ function onRecievedLogs(logIdsArr){ //this function is called when Logs are rece
 
 function onReceivedURL(url){ //this function is called when an url is added to tracking list
     //========== Nikifor
+    let li = document.createElement("li");
+    li.id = url;
+    li.innerText = url;
+    document.getElementById('urlListUl').appendChild(li);
 }
 
 function onRemovedURL(url){ //this function is called when an url is removed from tracking list
     //========== Nikifor
+    document.getElementById(url).style.display = 'none';
 }
 
 
@@ -136,9 +133,7 @@ function register(username, email, password){
 			if(response.success) {
                 user = new User();
                 updateObj(user, response.object);
-                loadedUsers[user.id] = user;
                 sessionId = response.sessionId;
-                socket.emit('allthenticate', {sessionId: sessionId});
                 console.log(sessionId);
         
                 onRegister();
@@ -167,10 +162,9 @@ function login(username, password){ //username could be email
 			if(response.success) {
                 user = new User();
                 updateObj(user, response.object);
-                loadedUsers[user.id] = user;
                 user.password = password;
                 sessionId = response.sessionId;
-                socket.emit('allthenticate', {sessionId: sessionId});
+                socket.emit('allthenticate', JSON.stringify({sessionId: sessionId}));
                 console.log(sessionId);
 
                 onLogin();
@@ -200,7 +194,6 @@ function getUser(userId){
                 if(response.success) {
                     let newUser = new User();
                     updateObj(newUser, response.object);
-                    loadedUsers[userId] = newUser;
                     loadURLs();
                 }
                 else {
@@ -231,7 +224,7 @@ function getLog(logId){
 
 function getLogs(url, brLogs){ //returns brLogs Logs (ot as many as there are) + makes a new log for the current server state
     if(user != null){
-        socket.emit('getLogs', {sessionId: sessionId, url: url, brLogs: brLogs});
+        socket.emit('getLogs', JSON.stringify({sessionId: sessionId, url: url, brLogs: brLogs}));
     }else{
         alert("You must login/register.");
     }
@@ -239,7 +232,7 @@ function getLogs(url, brLogs){ //returns brLogs Logs (ot as many as there are) +
 
 function addUrl(url){ //adds url to the urls you want to track
     if(user != null){
-        socket.emit('addUrl', {sessionId: sessionId, url: url});
+        socket.emit('addUrl', JSON.stringify({sessionId: sessionId, url: url}));
     }else{
         alert("You must login/register.");
     }
@@ -247,7 +240,7 @@ function addUrl(url){ //adds url to the urls you want to track
 
 function removeUrl(url){ //removes url from the urls you track
     if(user != null){
-        socket.emit('removeUrl', {sessionId: sessionId, url: url});
+        socket.emit('removeUrl', JSON.stringify({sessionId: sessionId, url: url}));
     }else{
         alert("You must login/register.");
     }

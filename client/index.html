@@ -108,8 +108,9 @@
             </div>
 
 
-            <div id="logListWrapper">
+            <div id="logListWrapper" class="list">
                 <ul id="logListUl">
+                    <li>Log 1</li>
                 </ul>
             </div>
             <div id="urlListWrapper" style="display: none" class="list">
@@ -237,6 +238,7 @@
             //                document.getElementById(a).style.display = "none";
             //                document.getElementById(b).style.display = "block";
             //            }
+            //remove after testing
             if (document.getElementById(a).style.display == "none") {
                 document.getElementById(a).style.display = "block";
                 document.getElementById(b).style.display = "none";
@@ -284,7 +286,7 @@
         }
         function clickedRegisterButton() {
             let username = document.getElementById('usernameInput2').value;
-            let email = document.getElementById('emailInput1').value;
+            let email = document.getElementById('emailInput').value;
             let password = document.getElementById('passwordInput2').value;
             register(username, email, password);
         }
@@ -318,7 +320,10 @@
             }
         };
         function deleteURL() {
-            document.getElementById(selectedURLId).style.display = 'none';
+            // send info to the server that you want to delete it
+            if (selectedURLId != '') {
+                removeUrl(document.getElementById(selectedURLId).innerText);
+            }
         };
         function PageSwap3() {
             document.getElementById("Page1").style.display = "none";
