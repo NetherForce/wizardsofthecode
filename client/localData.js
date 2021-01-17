@@ -1,5 +1,5 @@
 //var socket = io.connect('https://wizardsofthecode.online:443/');
-var socket = io('ws://wizardsofthecode.online:80/');
+var socket = io('wss://wizardsofthecode.online:443/');
 //var socket = io();
 
 function updateObj(obj1, obj2){
@@ -162,7 +162,6 @@ function login(username, password){ //username could be email
 			if(response.success) {
                 user = new User();
                 updateObj(user, response.object);
-                user.password = password;
                 sessionId = response.sessionId;
                 socket.emit('allthenticate', JSON.stringify({sessionId: sessionId}));
                 console.log(sessionId);
