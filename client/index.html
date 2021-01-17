@@ -15,8 +15,7 @@
 
             <div id="Menu">
                 <img class="Logo" src="logo.png" />
-
-                <b style="font-family:Helvetica">
+                <b style="font-family:Verdana">
                     URL Monitor
                 </b>
 
@@ -36,9 +35,7 @@
                     Login
                 </button>
 
-                <a>
-                    <img src="pfp.jpg" class="profilePic" style="width:42px;height:42px;">
-                </a>
+                <a><img src="pfp.jpg" class="profilePic" style="width:42px;height:42px;"></a>
             </div>
         </div>
 
@@ -55,7 +52,7 @@
             <div id="Menu">
                 <img class="Logo" src="logo.png" />
 
-                <b style="font-family:Helvetica">
+                <b style="font-family:Verdana">
                     URL Monitor
                 </b>
 
@@ -105,18 +102,16 @@
             </div>
             <div id="filterMenu" style="display: none" class="popUpMenu">
                 <p>Filter</p>
+                <button onclick="applyFilterChanges()">Apply</button>
             </div>
 
 
             <div id="logListWrapper" class="list">
                 <ul id="logListUl">
-                    <li>Log 1</li>
                 </ul>
             </div>
             <div id="urlListWrapper" style="display: none" class="list">
                 <ul id="urlListUl">
-                    <li onclick="selectURL(this)" id="eefe">URL 1</li>
-                    <li onclick="selectURL(this)" id="wfwfw">URL 2</li>
                 </ul>
                 <button onclick="deleteURL()">Delete</button>
             </div>
@@ -127,10 +122,10 @@
             <a onclick="LoginSwap3()">
                 <image id="img" src="logo.png"></image>
             </a>
-            <h1>Login/Registration</h1>
         </div>
         <div class="menu" id="login">
             <ul>
+                <li><h1>Login</h1></li>
                 <li>
                     <input id="usernameInput1" type="text" placeholder="Enter Username/Email" required>
                 </li>
@@ -147,6 +142,7 @@
         </div>
         <div class="menu" id="register" style="display: none">
             <ul>
+                <li><h1>Register</h1></li>
                 <li>
                     <input id="usernameInput2" type="text" placeholder="Enter Username" required>
                 </li>
@@ -183,7 +179,7 @@
             <div id="Menu">
                 <img class="Logo" src="logo.png" />
 
-                <b style="font-family:Helvetica">
+                <b style="font-family:Verdana">
                     URL Monitor
                 </b>
 
@@ -263,7 +259,7 @@
             if (document.getElementById("addURLMenu").style.display == "block") {
                 document.getElementById("addURLMenu").style.display = "none";
             }
-            if (document.getElementById("filterMenu").style.display == "none") {
+            if (document.getElementById("filterMenu").style.display == "none" && document.getElementById("logListWrapper").style.display != "none") {
                 document.getElementById("filterMenu").style.display = "block";
             } else {
                 document.getElementById("filterMenu").style.display = "none";
@@ -304,6 +300,8 @@
                 document.getElementById("urlListWrapper").style.display = "block";
                 document.getElementById("changeListsButton").innerText = "Logs";
             }
+            if (document.getElementById('addURLMenu').style.display == 'block') document.getElementById('addURLMenu').style.display = 'none';
+            if (document.getElementById('filterMenu').style.display == 'block') document.getElementById('filterMenu').style.display = 'none';
         };
         let selectedURLId = '';
         function selectURL(element) {
@@ -332,6 +330,9 @@
         function PageSwap4() {
             document.getElementById("Page2").style.display = "none";
             document.getElementById("Page3").style.display = "block";
+        }
+        function applyFilterChanges() {
+            updateLogList();
         }
     </script>
 </body>

@@ -319,6 +319,9 @@ body{
 #Page2 .popUpMenu button:hover{
     background-color: #133c57;
 }
+#Page2 {
+    font-family: Verdana;
+}
 #LoginPage form {
     border: 3px solid #767272;
   }
@@ -373,19 +376,26 @@ body{
     background-color: #7A2B26;
   }
   #LoginPage #img {
-      width: 100px;
-      height: 100px;
+      width: 200px;
+      height: 200px;
       transition-duration: 0.4s;
-      float: left;
+      cursor: pointer;
+      position: absolute;
+      left: 43%;
+  }
+#LoginPage {
+      font-family: Verdana;
   }
   #LoginPage .navbar {
-      padding-top: 10px;
       color: white;
       vertical-align: middle;
   }
   #LoginPage .menu {
-      padding-top: 10px;
+      padding-top: 13%;
   }
+#LoginPage .menu h1{
+    color: white;
+}
   #LoginPage .menu ul{
       padding: 0;
   }
