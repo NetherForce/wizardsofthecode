@@ -12,41 +12,12 @@ function updateObj(obj1, obj2){
 
 //classes that describe the rooms and users
 
-class Room{
+class Log{
     constructor(){
         this.id;
-        this.name = null; //The name of the group. If null, then use the name of the first member, who is not the currently logged one.
-        this.brMembers;
-        this.memberIds = [];
-        this.brMessages;
-        this.messageIds = [];
-        this.hasNewMessages = false;
-        //this.notLoadedMessageIds = [];
-    }
-}
-
-class Message{
-    constructor(){
-        this.id;
-        this.sentById;
-        this.sendByName;
-        this.content;
+        this.url;
         this.date;
-        this.time;
-        this.roomId;
-    }
-}
-
-class UserInfo{
-    constructor(){
-        this.firstName;
-        this.lastName;
-        this.registrDate;
-        this.loginCount;
-        this.lastLogin;
-        this.friendIds = [];
-        //this.profilePicture = new Image();
-        //this.profilePictureSrc;
+        this.status;
     }
 }
 
@@ -54,8 +25,7 @@ class User{
     constructor(){
         this.id;
         this.username;
-        this.roomIds = [];
-        this.info;
+        this.urls = [];
     }
 }
 
@@ -174,40 +144,6 @@ function getUser(userId){
         alert("You must login/register.");
     }
 }
-
-function getUserInfo(userId){
-    if(user != null){
-        $.ajax("/getUserInfo", {
-            data: JSON.stringify({sessionId: sessionId, userId: userId}),
-            method: "POST",
-            contentType: "application/json",
-            success: function(response, textStatus, jqXHR) {			
-                console.log(response);
-                if(response.success) {
-                    if(!loadedUsers[userId]){
-                        getComputedStyle(userId);
-                    }
-                    let newUserInfo = new UserInfo();
-                    updateObj(newUserInfo, response.object);
-                    loadedUsers[userId].info = newUserInfo;
-                }
-                else {
-                    alert(response.error);
-                    //Error
-                    //not finished
-                }
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                console.log(jqXHR);
-                console.log(textStatus);
-                console.log(errorThrown);
-            }		
-        });
-    }else{
-        alert("You must login/register.");
-    }
-}
-
 
 
 //functions for comunication with sockets

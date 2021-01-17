@@ -14,7 +14,6 @@ class Log{
         this.id;
         this.url;
         this.date;
-        this.time;
         this.status;
     }
 }

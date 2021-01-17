@@ -188,7 +188,7 @@ async function createLog(url, status){
     let id
 
     try {
-        var rows = await db.any("INSERT INTO room (id, name, user_id, last_updated) VALUES (nextval('room_ids'), $1, $2, $3) RETURNING id", [name, userId, date])
+        var rows = await db.any("INSERT INTO room (id, name, user_id, last_updated) VALUES (nextval('log_ids'), $1, $2, $3) RETURNING id", [name, userId, date])
         id = rows[0].id
         // await db.any('UPDATE room SET br_members = $1 WHERE id = $2', [members, id])
         // for(var i = 0; i<members; i++){
