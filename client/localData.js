@@ -54,14 +54,18 @@ function onRecievedLog(logId){ //this function is called when a Log is received 
     
     let newLog = loadedLogs[logId];
     let li = document.createElement("li");
-    li.id = newLog.id;
+    li.id = 'log' + newLog.id;
     li.innerText += 'id: ' + newLog.id;
     li.innerText += ' | url: ' + newLog.url;
     li.innerText += ' | date: ' + newLog.date;
     li.innerText += ' | time: ' + newLog.time;
     li.innerText += ' | status: ' + newLog.status;
+    if (!user.urls[newLog.url]) {
+        li.style.display = 'none';
+    }
     document.getElementById('logListUl').appendChild(li);
 }
+//test log
 let log = new Log();
 log.id = 0;
 log.url = 'Google.com';
@@ -71,13 +75,52 @@ log.status = 'ok';
 loadedLogs[log.id] = log;
 onRecievedLog(log.id);
 
+function objSize(obj) {
+  var size = 0,
+    key;
+  for (key in obj) {
+    if (obj.hasOwnProperty(key)) size++;
+  }
+  return size;
+};
+
+function updateLogList() {
+    for (let i = 0; i < objSize(loadedLogs); i++) {
+        for (key in loadedLogs) {
+            if (user.urls.hasOwnProperty(loadedLogs[key].url)) {
+                if (user.urls[loadedLogs[key].url]) {
+                    document.getElementById('log'+loadedLogs[key].id).style.display = 'block';
+                } else {
+                    document.getElementById('log'+loadedLogs[key].id).style.display = 'none';
+                }
+            }
+        }
+    }
+};
+function loadURLs() {
+    for (let i = 0; i < objSize(user.urls); i++) {
+        for (key in user.urls) {
+             if (user.urls.hasOwnProperty(key)) {
+                let li = document.createElement("li");
+                li.id = 'url' + newLog.id;
+                document.getElementById('urlListUl').appendChild(li);
+             }
+        }
+    }
+};
 function onRecievedLogs(logIdsArr){ //this function is called when Logs are received
     //========== Nikifor
     
     //mi nz oshte ne sum go izmislil
 }
 
+function onReceivedURL(url){ //this function is called when an url is added to tracking list
+    //========== Nikifor
+}
 
+function onRemovedURL(url){ //this function is called when an url is removed from tracking list
+    //========== Nikifor
+}
 
 
 //functions for comunication with the server
@@ -158,6 +201,7 @@ function getUser(userId){
                     let newUser = new User();
                     updateObj(newUser, response.object);
                     loadedUsers[userId] = newUser;
+                    loadURLs();
                 }
                 else {
                     console.error(response.error);
@@ -201,6 +245,14 @@ function addUrl(url){ //adds url to the urls you want to track
     }
 }
 
+function removeUrl(url){ //removes url from the urls you track
+    if(user != null){
+        socket.emit('removeUrl', {sessionId: sessionId, url: url});
+    }else{
+        alert("You must login/register.");
+    }
+}
+
 
 
 //listen with sockets for server
@@ -235,5 +287,13 @@ socket.on('receivedUrl', (msg) => {
     
     user.urls[response.url] = true;
 
-    onRecievedLogs(idsArr);
+    onReceivedURL(response.url);
+});
+
+socket.on('removedUrl', (msg) => {
+    let response = JSON.parse(msg);
+    
+    user.urls[response.url] = undefined;
+
+    onRemovedURL(response.url);
 });

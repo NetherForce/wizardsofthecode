@@ -260,10 +260,11 @@ exports.addUrlToUser = addUrlToUser;
 async function removeUrlFromUser(userId, url){
     //removes url to user
 
+
     let returnV = new structures.dbReturn()
 
     try {
-        var rows = await db.any("DELETE FROM urls WHERE user_id = $1 AND url = $2", [userId, url])
+        await db.any("DELETE FROM urls WHERE user_id = $1 AND url = $2", [userId, url])
         returnV.success = true
     } 
     catch (error) {
@@ -330,7 +331,7 @@ exports.getLog = getLog;
 
 
 async function getLogs(url, numberOfLogs, offset){
-    //roomId - id of the room that you want to load (This function doesnt load the messages or the members. Only their ids)
+    //returns latest logs (count of logs is equal to numberOfLogs) and skips the first few (depending on the offset)
 
     let returnV = new structures.dbReturn()
     let log = new structures.Log();
