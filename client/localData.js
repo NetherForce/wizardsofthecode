@@ -87,11 +87,24 @@ function objSize(obj) {
 function updateLogList() {
     for (let i = 0; i < objSize(loadedLogs); i++) {
         for (key in loadedLogs) {
-            if (user.urls[loadedLogs[key].url]) {
-                document.getElementById('log'+loadedLogs[key].id).style.display = 'block';
-            } else {
-                document.getElementById('log'+loadedLogs[key].id).style.display = 'none';
+            if (user.urls.hasOwnProperty(loadedLogs[key].url)) {
+                if (user.urls[loadedLogs[key].url]) {
+                    document.getElementById('log'+loadedLogs[key].id).style.display = 'block';
+                } else {
+                    document.getElementById('log'+loadedLogs[key].id).style.display = 'none';
+                }
             }
+        }
+    }
+};
+function loadURLs() {
+    for (let i = 0; i < objSize(user.urls); i++) {
+        for (key in user.urls) {
+             if (user.urls.hasOwnProperty(key)) {
+                let li = document.createElement("li");
+                li.id = 'url' + newLog.id;
+                document.getElementById('urlListUl').appendChild(li);
+             }
         }
     }
 };
@@ -182,6 +195,7 @@ function getUser(userId){
                     let newUser = new User();
                     updateObj(newUser, response.object);
                     loadedUsers[userId] = newUser;
+                    loadURLs();
                 }
                 else {
                     console.error(response.error);
