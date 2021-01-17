@@ -147,12 +147,12 @@ async function login(username_email, password){
             if(rows.length > 0){ //Checks if the email and password are correct
                 if(rows[0].is_verified){ //Checks if the user is verified in the database
                     var login_count_rows
-                    returnV.success = true
                     login_count_rows = await db.any('Select login_count FROM user_info WHERE id = $1', [id])
                     login_count = login_count_rows[0].login_count + 1
                     await db.any('UPDATE user_info SET last_login = $1, login_count=$2 WHERE id = $3', [last_login, login_count, id])
                     loadUser(id)
                     .then(function(result){
+                        returnV.success = true
                         returnV.object = result.object
                     })
                 }else if(token.length > 0){ //Checks if a token has been created for the user
@@ -164,6 +164,7 @@ async function login(username_email, password){
                     }
                     let newToken = generateToken()
                     verifyToken(id, newToken)
+                    returnV.success = false
                     returnV.object = { 'id': id, 'token': newToken }
                 }
             }else{
@@ -179,12 +180,12 @@ async function login(username_email, password){
             if(rows.length > 0){ //Checks if the username and password are correct
                 if(rows[0].is_verified){ //Checks if the user is verified in the database
                     var login_count_rows
-                    returnV.success = true
                     login_count_rows = await db.any('Select login_count FROM user_info WHERE id = $1', [id])
                     login_count = login_count_rows[0].login_count + 1
                     await db.any('UPDATE user_info SET last_login = $1, login_count=$2 WHERE id = $3', [last_login, login_count, id])
                     loadUser(id)
                     .then(function(result){
+                        returnV.success = true
                         returnV.object = result.object
                     })
                 }else if(token.length > 0){ //Checks if a token has been created for the user
@@ -196,6 +197,7 @@ async function login(username_email, password){
                     }
                     let newToken = generateToken()
                     verifyToken(id, newToken)
+                    returnV.success = false
                     returnV.object = { 'id': id, 'token': newToken }
                 }
             }else{
@@ -214,7 +216,7 @@ async function login(username_email, password){
     return returnV;
 }
 exports.login = login;
-login("Test2", "parola")
+
 
 async function verifyUser(token, userId){
     //verifies user
