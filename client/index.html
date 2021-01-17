@@ -14,7 +14,7 @@
                 <img class="Logo" src="logo.jpg" />
 
                 <b style="font-family:Helvetica">
-                    Page name
+                    URL Monitor
                 </b>
 
                 <a class="hp">
@@ -36,14 +36,8 @@
         </div>
 
         <div id="Info">
-            <p>_______________________________________</p>
-            <p>_______________________________________</p>
-            <p>_______________________________________</p>
-            <p>_______________________________________</p>
-            <p>_______________________________________</p>
-            <p>_______________________________________</p>
-            <p>_______________________________________</p>
-
+            <p>URL Monitor is a service delivered by Wizards of the Code for tracking your online services' 
+availability at every moment.</p>    
         </div>
     </div>
 
@@ -55,7 +49,7 @@
                 <img class="Logo" src="logo.jpg" />
 
                 <b style="font-family:Helvetica">
-                    Page name
+                    URL Monitor
                 </b>
 
                 <a onclick="PageSwap('Page1','Page2')">
@@ -148,15 +142,20 @@
     </div>
     <script>
         function PageSwap(a, b) {
-            if (document.getElementById(a).style.display == "none") {
-                document.getElementById(a).style.display = "block";
-                document.getElementById(b).style.display = "none";
-            } else {
-                document.getElementById(a).style.display = "none";
-                document.getElementById(b).style.display = "block";
+            if ((a == 'Page2' || b == 'Page2') && user == null) {
+                if (a == 'Page2') {
+                    PageSwap(b, 'LoginPage');
+                } else {
+                    PageSwap(a, 'LoginPage');
+                }
+            } else if (document.getElementById(a).style.display == "none") {
+                    document.getElementById(a).style.display = "block";
+                    document.getElementById(b).style.display = "none";
+                } else {
+                    document.getElementById(a).style.display = "none";
+                    document.getElementById(b).style.display = "block";
+                }
             }
-
-        }
         function LoginSwap1() {
             document.getElementById("Page1").style.display = "none";
             document.getElementById("LoginPage").style.display = "block";

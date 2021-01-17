@@ -72,11 +72,13 @@ body{
 }
 
 #Page1 #Info{
+    margin-top: 100px;
     color: #4faae7;
-    color: black;
-    position: absolute;
-    top: 35%;
-    left: 35%;
+    color: white;
+    font: Verdana;
+    width: 100%;
+    height: 50%;
+    text-align: center;
 }
 
 #Page1 b{
