@@ -94,7 +94,7 @@ function loadURLs() {
         for (key in user.urls) {
              if (user.urls.hasOwnProperty(key)) {
                 let li = document.createElement("li");
-                li.id = 'url' + newLog.id;
+                li.id = url;
                 document.getElementById('urlListUl').appendChild(li);
              }
         }
@@ -108,10 +108,15 @@ function onRecievedLogs(logIdsArr){ //this function is called when Logs are rece
 
 function onReceivedURL(url){ //this function is called when an url is added to tracking list
     //========== Nikifor
+    let li = document.createElement("li");
+    li.id = url;
+    li.innerText = url;
+    document.getElementById('urlListUl').appendChild(li);
 }
 
 function onRemovedURL(url){ //this function is called when an url is removed from tracking list
     //========== Nikifor
+    document.getElementById(url).style.display = 'none';
 }
 
 
