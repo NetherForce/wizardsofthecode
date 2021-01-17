@@ -185,7 +185,7 @@ app.get('/node_modules/socket.io/client-dist/socket.io.js', (req, res) => {
 });
 
 app.get('/verify/:id/:token', (req, res) => {
-	dbFunctions.verifyUser(req.body.token, req.body.id)
+	dbFunctions.verifyUser(req.params.token, req.params.id)
 	.then(function (dbReturn){
 		if(dbReturn.success){
 			res.sendFile(path.resolve(__dirname + '/../client/index.html'));

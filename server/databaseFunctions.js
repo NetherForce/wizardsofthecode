@@ -224,6 +224,7 @@ async function verifyUser(token, userId){
     let returnV = new structures.dbReturn()
     try {
         var rows = await db.any('Select token, user_id FROM token WHERE token = $1 AND user_id = $2', [token, userId])
+        console.log(rows)
         if(rows.length > 0){
             await db.any('UPDATE \"user\" SET is_verified = true WHERE id = $1', [userId])
         }
