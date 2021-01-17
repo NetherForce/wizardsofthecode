@@ -26,13 +26,16 @@ const privateKey = fs.readFileSync('../wizardsofthecode.online/privkey.pem', 'ut
 const certificate = fs.readFileSync('../wizardsofthecode.online/cert.pem', 'utf8');
 const ca = fs.readFileSync('../wizardsofthecode.online/chain.pem', 'utf8');
 
- const credentials = {
- 	key: privateKey,
- 	cert: certificate,
- 	ca: ca
- };
+const credentials = {
+    key: privateKey,
+    cert: certificate,
+    ca: ca
+};
 
-var http = require('http').createServer(app);
+
+
+var httpL = require('http')
+var http = httpL.createServer(app);
 var https = require('https').createServer(credentials, app);
 
 var io = require('socket.io')(http);
@@ -51,6 +54,7 @@ exports.email = info.email;
 exports.pgp = pgp;
 exports.db = db;
 
+exports.httpL = httpL;
 exports.http = http;
 exports.https = https;
 
