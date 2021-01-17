@@ -284,7 +284,7 @@
         }
         function clickedRegisterButton() {
             let username = document.getElementById('usernameInput2').value;
-            let email = document.getElementById('emailInput1').value;
+            let email = document.getElementById('emailInput').value;
             let password = document.getElementById('passwordInput2').value;
             register(username, email, password);
         }
@@ -318,7 +318,10 @@
             }
         };
         function deleteURL() {
-            document.getElementById(selectedURLId).style.display = 'none';
+            // send info to the server that you want to delete it
+            if (selectedURLId != '') {
+                removeUrl(document.getElementById(selectedURLId).innerText);
+            }
         };
         function PageSwap3() {
             document.getElementById("Page1").style.display = "none";
