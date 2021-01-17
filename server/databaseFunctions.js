@@ -5,23 +5,54 @@ let structures = require("./structures.js");
 
 //function for comunication between server and data base
 
-async function newUser(username, email, password){
+function validateEmail(email) {
+    var re = /\S+@\S+.\S+/;
+    return re.test(email);
+}
+
+
+async function verifyToken(userId, token){
+    //creates a token for user
+
+    let returnV = new structures.dbReturn()
+    let date = new Date()
+    try {
+        await db.any("INSERT INTO token (user_id, token, creation_date) VALUES ($1, $2, $3)", [userId, token, date])
+        returnV.success = true
+    } 
+    catch (error) {
+        returnV.success = false
+        returnV.error = error
+        console.log(error)
+    }
+
+    return returnV;
+}
+exports.verifyToken = verifyToken;
+
+
+async function newUser(username, email, password, token){
+    //Creates a new User
     let returnV = new structures.dbReturn()
     let user = new structures.User();
     let date = new Date()
     let id
 
     try {
+        //Checks if the username is taken
         if((await db.any('Select username FROM \"user\" WHERE username = $1', [username])).length>0){
             returnV.success = false
             returnV.error = "There is already an account with that username"
             console.log("There is already an account with that username")
+        //Checks if the email is taken
         }else if((await db.any('Select email FROM \"user\" WHERE email = $1', [email])).length>0){
             returnV.success = false
             returnV.error = "There is already an account with that email"
             console.log("There is already an account with that email")
+        //Adds information about the user into the database
         }else {
             var rows = await db.any("INSERT INTO \"user\" (id, username, password, email, is_verified) VALUES (nextval('ids'), $1, $2, $3, false) RETURNING id", [username,password, email])
+            await db.any("INSERT INTO token (token, user_id, creation_date ) VALUES ($1, $2, $3)", [id, token, date])
             id = rows[0].id
             await db.any('INSERT INTO user_info (id, login_count, registration_date) VALUES($1, $2, $3)',  [id, '0', date])
             returnV.success = true
@@ -103,31 +134,6 @@ async function loadUserInfo(userId){
     return returnV; //use loadUserInfo(userId).object to get userInfo
 }
 exports.loadUserInfo = loadUserInfo;
-
-
-function validateEmail(email) {
-    var re = /\S+@\S+.\S+/;
-    return re.test(email);
-}
-
-async function verifyToken(userId, token){
-    //creates a token for user
-
-    let returnV = new structures.dbReturn()
-    let date = new Date()
-    try {
-        await db.any("INSERT INTO token (user_id, token, creation_date) VALUES ($1, $2, $3)", [userId, token, date])
-        returnV.success = true
-    } 
-    catch (error) {
-        returnV.success = false
-        returnV.error = error
-        console.log(error)
-    }
-
-    return returnV;
-}
-exports.verifyToken = verifyToken;
 
 
 async function login(username_email, password){
@@ -224,6 +230,7 @@ async function verifyUser(token, userId){
     let returnV = new structures.dbReturn()
     try {
         var rows = await db.any('Select token, user_id FROM token WHERE token = $1 AND user_id = $2', [token, userId])
+        console.log(rows)
         if(rows.length > 0){
             await db.any('UPDATE \"user\" SET is_verified = true WHERE id = $1', [userId])
         }
