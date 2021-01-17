@@ -82,7 +82,7 @@ function logUrls(){
 		if(ursl[key]){
 			dbFunctions.createLog(key, checkWebsite(key))
 			.then(function (dbReturn){
-				for (const [key_, value_] of Object.entries(value) {
+				for (const [key_, value_] of Object.entries(value)){
 					if(dbReturn.success){
 						if(value_){
 							userIdToSockets(key_).emit('receivedLog', {log: dbReturn.object});

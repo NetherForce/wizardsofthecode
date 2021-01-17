@@ -11,7 +11,6 @@ function updateObj(obj1, obj2){
 
 
 //classes that describe the rooms and users
-
 class User{
     constructor(){
         this.id;
@@ -25,7 +24,6 @@ class Log{
         this.id;
         this.url;
         this.date;
-        this.time;
         this.status;
     }
 }
@@ -36,12 +34,12 @@ var loadedLogs = {}; //an object that takes as key - Log id and as value - the L
 var sessionId; //id of the seesion we connect to
 
 
-
 //function that are called in the listening sockets
-function onLogin(){ //this function is called when you login
+function onLogin() { //this function is called when you login
     //========== Nikifor
 
     //smenq ot login stranica na main menu
+    PageSwap('LoginPage', 'Page2');
 }
 
 function onRegister(){ //this function is called when you register
@@ -51,14 +49,23 @@ function onRegister(){ //this function is called when you register
 }
 
 function onRecievedLog(logId){ //this function is called when a Log is received (Log is already loaded in loadedLogs)
-    //========== Nikifor
 
     //dobawq kum spisuka s logove
+    
+    let newLog = loadedLogs[logId];
+    let li = document.createElement("li");
+    li.id = newLog.id;
+    li.innerText += 'id: ' + newLog.id;
+    li.innerText += ' | url: ' + newLog.url;
+    li.innerText += ' | date: ' + newLog.date;
+    li.innerText += ' | time: ' + newLog.time;
+    li.innerText += ' | status: ' + newLog.status;
+    document.getElementById('logListUl').appendChild(li);
 }
 
 function onRecievedLogs(logIdsArr){ //this function is called when Logs are received
     //========== Nikifor
-
+    
     //mi nz oshte ne sum go izmislil
 }
 
@@ -159,39 +166,6 @@ function getUser(userId){
         alert("You must login/register.");
     }
 }
-
-function getUserInfo(userId){
-    if(user != null){
-        $.ajax("/getUserInfo", {
-            data: JSON.stringify({sessionId: sessionId, userId: userId}),
-            method: "POST",
-            contentType: "application/json",
-            success: function(response, textStatus, jqXHR) {			
-                console.log(response);
-                if(response.success) {
-                    if(!loadedUsers[userId]){
-                        getComputedStyle(userId);
-                    }
-                    let newUserInfo = new UserInfo();
-                    updateObj(newUserInfo, response.object);
-                    loadedUsers[userId].info = newUserInfo;
-                }
-                else {
-                    console.error(response.error);
-                    //Error
-                }
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                console.log(jqXHR);
-                console.log(textStatus);
-                console.log(errorThrown);
-            }		
-        });
-    }else{
-        alert("You must login/register.");
-    }
-}
-
 
 
 //functions for comunication with sockets
