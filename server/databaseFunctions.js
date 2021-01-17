@@ -21,7 +21,7 @@ async function newUser(username, email, password){
             returnV.error = "There is already an account with that email"
             console.log("There is already an account with that email")
         }else {
-            var rows = await db.any("INSERT INTO \"user\" (id, username, password, email) VALUES (nextval('ids'), $1, $2, $3) RETURNING id", [username,password, email])
+            var rows = await db.any("INSERT INTO \"user\" (id, username, password, email, is_verified) VALUES (nextval('ids'), $1, $2, $3, false) RETURNING id", [username,password, email])
             id = rows[0].id
             await db.any('INSERT INTO user_info (id, login_count, registration_date) VALUES($1, $2, $3)',  [id, '0', date])
             returnV.success = true
@@ -118,9 +118,6 @@ function validateEmail(email) {
 async function login(username_email, password){
     let returnV = new structures.dbReturn()
     let user = new structures.User()
-    let checkUsername
-    let checkPassword
-    let checkEmail
     let id
     let last_login = new Date();
     let login_count
@@ -140,7 +137,6 @@ async function login(username_email, password){
                 .then(function(result){
                     returnV.object = result.object
                     console.log(returnV)
-                    return returnV;
                 })
             }else{
                 returnV.success = false
@@ -160,7 +156,6 @@ async function login(username_email, password){
                 .then(function(result){
                     returnV.object = result.object
                     console.log(returnV)
-                    return returnV;
                 })
             }else{
                 returnV.success = false
@@ -174,9 +169,29 @@ async function login(username_email, password){
         returnV.error = error
         console.log(error)
     }
+
+    return returnV;
 }
 exports.login = login;
 
+async function addUrlToUser(userId, url){
+    //adds url to user
+
+    let returnV = new structures.dbReturn()
+
+    try {
+        var rows = await db.any("INSERT INTO urls (user_id, url) VALUES ($1, $2)", [userId, url])
+        returnV.success = true
+    } 
+    catch (error) {
+        returnV.success = false
+        returnV.error = error
+        console.log(error)
+    }
+    
+    return returnV;
+}
+exports.addUrlToUser = addUrlToUser;
 
 async function createLog(url, status){
     //userId - id of the user whose creates the room
@@ -188,16 +203,12 @@ async function createLog(url, status){
     let id
 
     try {
-        var rows = await db.any("INSERT INTO room (id, name, user_id, last_updated) VALUES (nextval('log_ids'), $1, $2, $3) RETURNING id", [name, userId, date])
+        var rows = await db.any("INSERT INTO log (id, date, url, status) VALUES (nextval('log_ids'), $1, $2, $3) RETURNING id", [date, url, status])
         id = rows[0].id
-        // await db.any('UPDATE room SET br_members = $1 WHERE id = $2', [members, id])
-        // for(var i = 0; i<members; i++){
-        //     var rows2 = await db.any("INSERT INTO room_user (room_id, user_id) VALUES ($1, $2) RETURNING user_id", [id, memberIds[i]])
-        //     memberId = rows2[0].user_id
-        //     room.memberIds[i] = memberId
-        // }
         log.id = id
-        log.lastUpdated = date
+        log.date = date
+        log.url = url
+        log.status = status
         returnV.success = true
         returnV.object = log
     } 
@@ -211,16 +222,15 @@ async function createLog(url, status){
 }
 exports.createLog = createLog;
 
-
 async function getLog(logId){
-    //roomId - id of the room that you want to load (This function doesnt load the messages or the members. Only their ids)
+    //returns Log from its id
 
     let returnV = new structures.dbReturn()
     let log = new structures.Log();
     try {
-        var rows = await db.any('SELECT id, name, user_id, last_updated, br_members FROM room WHERE id = $1', [roomId])
+        var rows = await db.any('SELECT * FROM log WHERE id = $1', [logId])
         var id = rows[0].id
-        room.id = id
+        log = rows[0]
         returnV.success = true
         returnV.object = log
     } 
@@ -230,7 +240,6 @@ async function getLog(logId){
         console.log(error)
     }
 
-    console.log(returnV)
     return returnV;
 }
 exports.getLog = getLog;
@@ -245,11 +254,6 @@ async function getLogs(url, numberOfLogs){
         var rows = await db.any('SELECT id, name, user_id, last_updated, br_members FROM room WHERE id = $1', [roomId])
         var id = rows[0].id
         room.id = id
-        //for(var i = 0; i<members; i++){
-          //  var rows2 = await db.any("SELECT user_id FROM room_user WHERE room_id = $1", [roomId])
-           // memberId = rows2[i].user_id
-          //  room.memberIds[i] = memberId
-        //}
         returnV.success = true
         returnV.object = room
     } 
@@ -263,21 +267,75 @@ async function getLogs(url, numberOfLogs){
 }
 exports.getLogs = getLogs;
 
+async function verifyToken(userId, token){
+    //verifies user
 
-function changeUsername(userId, newusername){
+    let returnV = new structures.dbReturn()
+    let date = new Date()
+    try {
+        await db.any("INSERT INTO token (user_id, token, creation_date) VALUES ($1, $2, $3)", [userId, token, date])
+        returnV.success = true
+    } 
+    catch (error) {
+        returnV.success = false
+        returnV.error = error
+        console.log(error)
+    }
+
+    console.log(returnV)
+    return returnV;
+}
+exports.verifyToken = verifyToken;
+verifyToken(36, "token1")
+
+
+async function changeUsername(userId, newusername){
     //change the username of user
+
+    let returnV = new structures.dbReturn()
+    try {
+        returnV.success = true
+    } 
+    catch (error) {
+        returnV.success = false
+        returnV.error = error
+    }
+
+    return returnV;
 }
 exports.changeUsername = changeUsername;
 
 
-function changePassword(userId, oldPassword, newPassword){
+async function changePassword(userId, oldPassword, newPassword){
     //change the password of user
+
+    let returnV = new structures.dbReturn()
+    try {
+        returnV.success = true
+    } 
+    catch (error) {
+        returnV.success = false
+        returnV.error = error
+    }
+
+    return returnV;
 }
 exports.changePassword = changePassword;
 
 
-function changeUserInfo(userId, infoParameter, newInfo){
+async function changeUserInfo(userId, infoParameter, newInfo){
     //change info parameter of user
     //infoParameter - the parameter we want to change (first name, last name, ect.) - a string
+
+    let returnV = new structures.dbReturn()
+    try {
+        returnV.success = true
+    } 
+    catch (error) {
+        returnV.success = false
+        returnV.error = error
+    }
+
+    return returnV;
 }
 exports.changeUserInfo = changeUserInfo;
