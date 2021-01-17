@@ -35,10 +35,11 @@ var sessionId; //id of the seesion we connect to
 
 
 //function that are called in the listening sockets
-function onLogin(){ //this function is called when you login
+function onLogin() { //this function is called when you login
     //========== Nikifor
 
     //smenq ot login stranica na main menu
+    PageSwap('LoginPage', 'Page2');
 }
 
 function onRegister(){ //this function is called when you register
@@ -48,14 +49,23 @@ function onRegister(){ //this function is called when you register
 }
 
 function onRecievedLog(logId){ //this function is called when a Log is received (Log is already loaded in loadedLogs)
-    //========== Nikifor
 
     //dobawq kum spisuka s logove
+    
+    let newLog = loadedLogs[logId];
+    let li = document.createElement("li");
+    li.id = newLog.id;
+    li.innerText += 'id: ' + newLog.id;
+    li.innerText += ' | url: ' + newLog.url;
+    li.innerText += ' | date: ' + newLog.date;
+    li.innerText += ' | time: ' + newLog.time;
+    li.innerText += ' | status: ' + newLog.status;
+    document.getElementById('logListUl').appendChild(li);
 }
 
 function onRecievedLogs(logIdsArr){ //this function is called when Logs are received
     //========== Nikifor
-
+    
     //mi nz oshte ne sum go izmislil
 }
 
