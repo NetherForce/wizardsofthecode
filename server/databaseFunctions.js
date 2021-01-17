@@ -286,7 +286,6 @@ async function verifyToken(userId, token){
     return returnV;
 }
 exports.verifyToken = verifyToken;
-verifyToken(36, "token1")
 
 
 async function changeUsername(userId, newusername){
