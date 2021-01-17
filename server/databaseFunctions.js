@@ -336,6 +336,7 @@ async function getLog(logId){
     return returnV;
 }
 exports.getLog = getLog;
+getLog()
 
 
 async function getLogs(url, numberOfLogs, offset){
