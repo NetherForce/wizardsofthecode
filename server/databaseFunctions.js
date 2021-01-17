@@ -199,13 +199,11 @@ async function login(username_email, password){
                     returnV.success = true
                     returnV.object = result.object
     
-                    console.log("asdf", returnV);
                     return returnV;
                 }else if(token.length > 0){ //Checks if a token has been created for the user
                     returnV.success = false
                     returnV.error = "Verify email"
         
-                    console.log("err1", returnV);
                     return returnV;
                 }else{ //Creates a token for the user
                     var generateToken = function() { // generates a verification token
@@ -216,7 +214,6 @@ async function login(username_email, password){
                     returnV.success = false
                     returnV.object = { 'id': id, 'token': newToken }
         
-                    console.log("err2", returnV);
                     return returnV;
                 }
             }else{
@@ -224,7 +221,6 @@ async function login(username_email, password){
                 returnV.object = "Invalid login credentials"
                 console.log("Invalid login credentials")
         
-                console.log("err3", returnV);
                 return returnV;
             }
         }
