@@ -51,9 +51,9 @@ function logUrls(){
 		if(ursl[key]){
 			dbFunctions.createLog(key, checkWebsite(key))
 			.then(function (dbReturn){
-				for (const [key_, value_] of Object.entries(urls[key])) {
+				for (const [key_, value_] of Object.entries(value) {
 					if(dbReturn.success){
-						if(urls[key][key_]){
+						if(value_){
 							userIdToSockets(key_).emit('receivedLog', {log: dbReturn.object});
 							if(sentEmails[key][key_]){
 								//send email saying that the server is back up
@@ -230,7 +230,7 @@ function onConnection(socket){
 			}
 		});
 	});
-*/
+
 
 	socket.on('disconnect', () => {
 		console.log('user disconnected');
