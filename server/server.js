@@ -229,11 +229,15 @@ app.post('/createUser', (req, res) => {
 app.post('/login', (req, res) => {
 	dbFunctions.login(req.body.username, req.body.password)
 	.then(function (dbReturn){
+		console.log("server", dbReturn);
 		if(dbReturn.success){
-			//req.body.session.userId = dbReturn.object.id;
+			req.session.userId = dbReturn.object.id;
 			dbReturn.sessionId = req.body.sessionId;
 
 			let user = req.body.object;
+			if(user.urls == undefined){
+				user.urls = {};
+			}
 			for (let url in user.urls) {
 				if(urls[url] == null){
 					urls[url] = {};
@@ -246,7 +250,7 @@ app.post('/login', (req, res) => {
 				sentEmails[url][user.id] = false;
 			}
 		}else{
-			if(dbReturn.object){
+			if(dbReturn.object != undefined){
 				const data = { 'id': dbReturn.object.id, 'token': dbReturn.object.token };
 				let sign = encodeQueryData(data);
 
@@ -264,9 +268,8 @@ app.post('/login', (req, res) => {
 				});
 			}
 		}
+
 		res.json(dbReturn);
-	
-		
 	});
 });
 
@@ -351,6 +354,13 @@ function onConnection(socket){
 					dbFunctions.addUrlToUser(session.userId, msg.url)
 					.then(function (dbReturn){
 						if(dbReturn_.success){
+							if(urls[msg.url] == undefined){
+								urls[msg.url] = {};
+							}
+							if(urls[msg.url] == undefined){
+								urls[msg.url][session.userId] = true;
+							}
+
 							userIdToSockets[session.userId].emit('receivedUrl', JSON.stringify({url: msg.url}));
 						}else{
 							userIdToSockets[session.userId].emit('error', JSON.stringify({error: dbReturn.error}));
@@ -408,7 +418,7 @@ db.any('SELECT * FROM encrypted_key')
 	});
 });
 
-let logUrlsTime = 30 * 1000; //the amount of time the function callLogUrlsFunction will wait before calling itself | it will currently wait 30 sec.
+let logUrlsTime = 3 * 1000; //the amount of time the function callLogUrlsFunction will wait before calling itself | it will currently wait 30 sec.
 
 function callLogUrlsFunction(){ // calls the function logUrl every few seconds
 	logUrls();

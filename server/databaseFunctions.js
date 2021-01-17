@@ -52,9 +52,9 @@ async function newUser(username, email, password, token){
         //Adds information about the user into the database
         }else {
             var rows = await db.any("INSERT INTO \"user\" (id, username, password, email, is_verified) VALUES (nextval('ids'), $1, $2, $3, false) RETURNING id", [username,password, email])
-            await db.any("INSERT INTO token (token, user_id, creation_date ) VALUES ($1, $2, $3)", [id, token, date])
             id = rows[0].id
-            await db.any('INSERT INTO user_info (id, login_count, registration_date) VALUES($1, $2, $3)',  [id, '0', date])
+            await db.any("INSERT INTO token (token, user_id, creation_date ) VALUES ($1, $2, $3)", [token, id, date])
+            await db.any('INSERT INTO user_info (id, login_count, registration_date) VALUES($1, $2, $3)',  [id, 0, date])
             returnV.success = true
             user.username = username
             user.id = id
@@ -156,27 +156,33 @@ async function login(username_email, password){
                     login_count_rows = await db.any('Select login_count FROM user_info WHERE id = $1', [id])
                     login_count = login_count_rows[0].login_count + 1
                     await db.any('UPDATE user_info SET last_login = $1, login_count=$2 WHERE id = $3', [last_login, login_count, id])
-                    loadUser(id)
-                    .then(function(result){
-                        returnV.success = true
-                        returnV.object = result.object
-                    })
+                    let result = await loadUser(id)
+                    returnV.success = true
+                    returnV.object = result.object
+    
+                    return returnV;
                 }else if(token.length > 0){ //Checks if a token has been created for the user
                     returnV.success = false
                     returnV.error = "Verify email"
+        
+                    return returnV;
                 }else{ //Creates a token for the user
                     var generateToken = function() { // generates a verification token
                         return Math.random().toString(36).substr(2); // remove 0.
                     }
                     let newToken = generateToken()
-                    verifyToken(id, newToken)
+                    await verifyToken(id, newToken)
                     returnV.success = false
                     returnV.object = { 'id': id, 'token': newToken }
+        
+                    return returnV;
                 }
             }else{
                 returnV.success = false
-                returnV.object = "Invalid login credentials"
+                returnV.error = "Invalid login credentials"
                 console.log("Invalid login credentials")
+        
+                return returnV;
             }
         //Checks whether a username has been entered
         }else{
@@ -189,27 +195,37 @@ async function login(username_email, password){
                     login_count_rows = await db.any('Select login_count FROM user_info WHERE id = $1', [id])
                     login_count = login_count_rows[0].login_count + 1
                     await db.any('UPDATE user_info SET last_login = $1, login_count=$2 WHERE id = $3', [last_login, login_count, id])
-                    loadUser(id)
-                    .then(function(result){
-                        returnV.success = true
-                        returnV.object = result.object
-                    })
+                    let result = await loadUser(id);
+                    returnV.success = true
+                    returnV.object = result.object
+    
+                    console.log("asdf", returnV);
+                    return returnV;
                 }else if(token.length > 0){ //Checks if a token has been created for the user
                     returnV.success = false
                     returnV.error = "Verify email"
+        
+                    console.log("err1", returnV);
+                    return returnV;
                 }else{ //Creates a token for the user
                     var generateToken = function() { // generates a verification token
                         return Math.random().toString(36).substr(2); // remove 0.
                     }
                     let newToken = generateToken()
-                    verifyToken(id, newToken)
+                    await verifyToken(id, newToken)
                     returnV.success = false
                     returnV.object = { 'id': id, 'token': newToken }
+        
+                    console.log("err2", returnV);
+                    return returnV;
                 }
             }else{
                 returnV.success = false
                 returnV.object = "Invalid login credentials"
                 console.log("Invalid login credentials")
+        
+                console.log("err3", returnV);
+                return returnV;
             }
         }
     } 
@@ -217,9 +233,10 @@ async function login(username_email, password){
         returnV.success = false
         returnV.error = error
         console.log(error)
-    }
 
-    return returnV;
+        console.log("err4", returnV);
+        return returnV;
+    }
 }
 exports.login = login;
 
