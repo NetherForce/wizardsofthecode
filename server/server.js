@@ -42,8 +42,8 @@ var generateToken = function() { // generates a verification token
 function encodeQueryData(data) { // used to generate a get request link
 	const ret = [];
 	for (let d in data)
-	  ret.push(encodeURIComponent(d) + '=' + encodeURIComponent(data[d]));
-	return ret.join('&');
+	  ret.push(encodeURIComponent(data[d]));
+	return ret.join('/');
  }
 
  function subtractDtes(date1, date2){ // returns the difference in time between the dates in miliseconds
@@ -188,7 +188,7 @@ app.get('/verify/:id/:token', (req, res) => {
 	dbFunctions.verifyUser(req.body.token, req.body.id)
 	.then(function (dbReturn){
 		if(dbReturn.success){
-			res.sendFile(__dirname + '/../client/index.html');
+			res.sendFile(path.resolve(__dirname + '/../client/index.html'));
 		}
 	});
 });

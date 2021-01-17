@@ -1,5 +1,5 @@
 //var socket = io.connect('https://wizardsofthecode.online:443/');
-var socket = io('ws://wizardsofthecode.online:80/');
+var socket = io('wss://wizardsofthecode.online:443/');
 //var socket = io();
 
 function updateObj(obj1, obj2){
@@ -92,11 +92,29 @@ function updateLogList() {
 function loadURLs() {
     for (let i = 0; i < objSize(user.urls); i++) {
         for (key in user.urls) {
-             if (user.urls.hasOwnProperty(key)) {
+            if (user.urls.hasOwnProperty(key)) {
+                
+                //inserts a url into the list with urls
                 let li = document.createElement("li");
                 li.id = url;
+                li.innerText = url;
                 document.getElementById('urlListUl').appendChild(li);
-             }
+                
+                //inserts a url btn into the filter menu so that an url can be filtered out
+                let btn = document.createElement('button');
+                btn.id = 'btn' + url;
+                btn.innerText = url;
+                btn.onclick = function() {
+                    if (user.urls[btn.innerText]) {
+                        user.urls[btn.innerText] = false;
+                        btn.backgroundColor = '#a1a1a1';
+                    } else {
+                        user.urls[btn.innerText] = true;
+                        btn.backgroundColor = '#598bac';
+                    }
+                };
+                document.getElementById('filterMenu').appendChild(btn);
+            }
         }
     }
 };
@@ -162,7 +180,6 @@ function login(username, password){ //username could be email
 			if(response.success) {
                 user = new User();
                 updateObj(user, response.object);
-                user.password = password;
                 sessionId = response.sessionId;
                 socket.emit('allthenticate', JSON.stringify({sessionId: sessionId}));
                 console.log(sessionId);
