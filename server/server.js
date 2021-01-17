@@ -229,26 +229,47 @@ app.post('/createUser', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-    let dbReturn = dbFunctions.login(req.body.username, req.body.password);
-	if(dbReturn.success){
-		req.body.session.userId = dbReturn.object.id;
-		dbReturn.sessionId = req.body.session.id;
-	}
+	let dbReturn = dbFunctions.login(req.body.username, req.body.password)
+	.then(function (dbReturn){
+		if(dbReturn.success){
+			req.body.session.userId = dbReturn.object.id;
+			dbReturn.sessionId = req.body.session.id;
 
-	let user = req.body.object;
-	for (let url in user.urls) {
-        if(urls[url] == null){
-			urls[url] = {};
+			let user = req.body.object;
+			for (let url in user.urls) {
+				if(urls[url] == null){
+					urls[url] = {};
+				}
+				urls[url][user.id] = true;
+		
+				if(sentEmails[url] == null){
+					sentEmails[url] = {};
+				}
+				sentEmails[url][user.id] = false;
+			}
+		}else{
+			if(dbReturn.object){
+				const data = { 'id': dbReturn.object.id, 'token': dbReturn.object.token };
+				let sign = encodeQueryData(data);
+
+				let link = "https://wizardsofthecode.online/verify/" + sign;
+				console.log("Email link: " + link);
+				transporter.sendMail({
+					from: "" + email, // sender address
+					to: "" + req.body.email, // list of receivers
+					subject: "Verify email", // Subject line
+					text: "Click the link to verify email: " + link, // plain text body
+					html: "Click the link to verify email: <a href=" + link + "> Click here.</a>", // html body
+				}, function (error, info){
+					console.log("Error: ", error);
+					console.log("Info: ", info);
+				});
+			}
 		}
-		urls[url][user.id] = true;
-
-		if(sentEmails[url] == null){
-			sentEmails[url] = {};
-		}
-		sentEmails[url][user.id] = false;
-    }
-
-	res.json(dbReturn);
+		res.json(dbReturn);
+	
+		
+	});
 });
 
 app.post('/getUser', (req, res) => {
@@ -260,7 +281,6 @@ app.post('/getUser', (req, res) => {
 // 	let dbReturn = dbFunctions.loadUserInfo(req.userId);
 // 	res.json(dbReturn);
 // });
-
 
 //socket comunication
 function onConnection(socket){

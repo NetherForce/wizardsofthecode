@@ -5,7 +5,7 @@ let structures = require("./structures.js");
 
 //function for comunication between server and data base
 
-async function newUser(username, email, password, token){
+async function newUser(username, email, password){
     let returnV = new structures.dbReturn()
     let user = new structures.User();
     let date = new Date()
@@ -36,11 +36,9 @@ async function newUser(username, email, password, token){
         console.log(error)
     }
     
-    console.log(returnV)
     return returnV;
 }
 exports.newUser = newUser;
-
 
 async function loadUser(userId){
     //userId - id of the user that you want to load (this function doesnt load the info of the user)
@@ -80,7 +78,6 @@ async function loadEmail(userId){
         console.log(error)
     }
     
-    console.log(returnV)
     return returnV; //use loadUser(userId).object to get user
 }
 exports.loadEmail = loadEmail;
@@ -103,7 +100,6 @@ async function loadUserInfo(userId){
         console.log(error)
     }
     
-    console.log(returnV)
     return returnV; //use loadUserInfo(userId).object to get userInfo
 }
 exports.loadUserInfo = loadUserInfo;
@@ -114,49 +110,94 @@ function validateEmail(email) {
     return re.test(email);
 }
 
+async function verifyToken(userId, token){
+    //creates a token for user
+
+    let returnV = new structures.dbReturn()
+    let date = new Date()
+    try {
+        await db.any("INSERT INTO token (user_id, token, creation_date) VALUES ($1, $2, $3)", [userId, token, date])
+        returnV.success = true
+    } 
+    catch (error) {
+        returnV.success = false
+        returnV.error = error
+        console.log(error)
+    }
+
+    return returnV;
+}
+exports.verifyToken = verifyToken;
+
 
 async function login(username_email, password){
     let returnV = new structures.dbReturn()
-    let user = new structures.User()
     let id
     let last_login = new Date();
     let login_count
     var rows
+    let token
 
     try {
+        //Checks whether an email has been entered
         if(validateEmail(username_email) == true){
-            rows = await db.any('Select id, email, password FROM \"user\" WHERE email = $1 AND password = $2', [username_email, password])
-            if(rows.length>0){
-                var login_count_rows
-                returnV.success = true
-                id = rows[0].id
-                login_count_rows = await db.any('Select login_count FROM user_info WHERE id = $1', [id])
-                login_count = login_count_rows[0].login_count + 1
-                await db.any('UPDATE user_info SET last_login = $1, login_count=$2 WHERE id = $3', [last_login, login_count, id])
-                loadUser(id)
-                .then(function(result){
-                    returnV.object = result.object
-                    console.log(returnV)
-                })
+            rows = await db.any('Select id, email, password, is_verified FROM \"user\" WHERE email = $1 AND password = $2', [username_email, password])
+            id = rows[0].id
+            token = await db.any('Select user_id FROM token WHERE user_id = $1', [id])
+            if(rows.length > 0){ //Checks if the email and password are correct
+                if(rows[0].is_verified){ //Checks if the user is verified in the database
+                    var login_count_rows
+                    returnV.success = true
+                    login_count_rows = await db.any('Select login_count FROM user_info WHERE id = $1', [id])
+                    login_count = login_count_rows[0].login_count + 1
+                    await db.any('UPDATE user_info SET last_login = $1, login_count=$2 WHERE id = $3', [last_login, login_count, id])
+                    loadUser(id)
+                    .then(function(result){
+                        returnV.object = result.object
+                    })
+                }else if(token.length > 0){ //Checks if a token has been created for the user
+                    returnV.success = false
+                    returnV.error = "Verify email"
+                }else{ //Creates a token for the user
+                    var generateToken = function() { // generates a verification token
+                        return Math.random().toString(36).substr(2); // remove 0.
+                    }
+                    let newToken = generateToken()
+                    verifyToken(id, newToken)
+                    returnV.object = { 'id': id, 'token': newToken }
+                }
             }else{
                 returnV.success = false
                 returnV.object = "Invalid login credentials"
                 console.log("Invalid login credentials")
             }
+        //Checks whether a username has been entered
         }else{
-            rows = await db.any('Select id, username, password FROM \"user\" WHERE username = $1 AND password = $2', [username_email, password])
-            if(rows.length>0){
-                var login_count_rows
-                returnV.success = true
-                id = rows[0].id
-                login_count_rows = await db.any('Select login_count FROM user_info WHERE id = $1', [id])
-                login_count = login_count_rows[0].login_count + 1
-                await db.any('UPDATE user_info SET last_login = $1, login_count=$2 WHERE id = $3', [last_login, login_count, id])
-                loadUser(id)
-                .then(function(result){
-                    returnV.object = result.object
-                    console.log(returnV)
-                })
+            rows = await db.any('Select id, username, password, is_verified FROM \"user\" WHERE username = $1 AND password = $2', [username_email, password])
+            id = rows[0].id
+            token = await db.any('Select user_id FROM token WHERE user_id = $1', [id])
+            if(rows.length > 0){ //Checks if the username and password are correct
+                if(rows[0].is_verified){ //Checks if the user is verified in the database
+                    var login_count_rows
+                    returnV.success = true
+                    login_count_rows = await db.any('Select login_count FROM user_info WHERE id = $1', [id])
+                    login_count = login_count_rows[0].login_count + 1
+                    await db.any('UPDATE user_info SET last_login = $1, login_count=$2 WHERE id = $3', [last_login, login_count, id])
+                    loadUser(id)
+                    .then(function(result){
+                        returnV.object = result.object
+                    })
+                }else if(token.length > 0){ //Checks if a token has been created for the user
+                    returnV.success = false
+                    returnV.error = "Verify email"
+                }else{ //Creates a token for the user
+                    var generateToken = function() { // generates a verification token
+                        return Math.random().toString(36).substr(2); // remove 0.
+                    }
+                    let newToken = generateToken()
+                    verifyToken(id, newToken)
+                    returnV.object = { 'id': id, 'token': newToken }
+                }
             }else{
                 returnV.success = false
                 returnV.object = "Invalid login credentials"
@@ -173,6 +214,29 @@ async function login(username_email, password){
     return returnV;
 }
 exports.login = login;
+login("Test2", "parola")
+
+async function verifyUser(token, userId){
+    //verifies user
+
+    let returnV = new structures.dbReturn()
+    try {
+        var rows = await db.any('Select token, user_id FROM token WHERE token = $1 AND user_id = $2', [token, userId])
+        if(rows.length > 0){
+            await db.any('UPDATE \"user\" SET is_verified = true WHERE id = $1', [userId])
+        }
+        returnV.success = true
+    } 
+    catch (error) {
+        returnV.success = false
+        returnV.error = error
+        console.log(error)
+    }
+
+    return returnV;
+}
+exports.verifyUser = verifyUser;
+
 
 async function addUrlToUser(userId, url){
     //adds url to user
@@ -194,12 +258,13 @@ async function addUrlToUser(userId, url){
 exports.addUrlToUser = addUrlToUser;
 
 async function removeUrlFromUser(userId, url){
-    //adds url to user
+    //removes url to user
+
 
     let returnV = new structures.dbReturn()
 
     try {
-        var rows = await db.any("INSERT INTO urls (user_id, url) VALUES ($1, $2)", [userId, url])
+        await db.any("DELETE FROM urls WHERE user_id = $1 AND url = $2", [userId, url])
         returnV.success = true
     } 
     catch (error) {
@@ -211,6 +276,7 @@ async function removeUrlFromUser(userId, url){
     return returnV;
 }
 exports.removeUrlFromUser = removeUrlFromUser;
+
 
 async function createLog(url, status){
     //userId - id of the user whose creates the room
@@ -270,11 +336,10 @@ async function getLogs(url, numberOfLogs, offset){
     let returnV = new structures.dbReturn()
     let log = new structures.Log();
     try {
-        var rows = await db.any('SELECT id, name, user_id, last_updated, br_members FROM room WHERE id = $1', [roomId])
-        var id = rows[0].id
-        room.id = id
+        var rows = await db.any('SELECT * FROM log WHERE url = $1 ORDER BY date LIMIT $2 OFFSET $3', [url, numberOfLogs, offset])
+        log = rows[0]
         returnV.success = true
-        returnV.object = room
+        returnV.object = rows
     } 
     catch (error) {
         returnV.success = false
@@ -286,25 +351,42 @@ async function getLogs(url, numberOfLogs, offset){
 }
 exports.getLogs = getLogs;
 
-async function verifyToken(userId, token){
+
+function subtractDates(date1, date2){ 
+    // returns the difference in time between the dates in miliseconds
+    return Math.abs(date1 - date2);
+}
+exports.subtractDates = subtractDates;
+
+
+async function checkTokens(){
     //verifies user
 
     let returnV = new structures.dbReturn()
     let date = new Date()
     try {
-        await db.any("INSERT INTO token (user_id, token, creation_date) VALUES ($1, $2, $3)", [userId, token, date])
+        var rows = await db.any('SELECT creation_date FROM token')
+        for(var i = 0; i < rows.length; i++){
+            await db.any("DELETE FROM token WHERE creation_date + time '00:30' < $1", [date])
+        }
         returnV.success = true
     } 
     catch (error) {
         returnV.success = false
         returnV.error = error
-        console.log(error)
     }
 
-    console.log(returnV)
     return returnV;
 }
-exports.verifyToken = verifyToken;
+exports.checkTokens = checkTokens;
+
+
+function callCheckTokens(){ // calls the function checkTokens every few seconds
+    checkTokens();
+    setTimeout(callCheckTokens, 30*60*1000);
+}
+exports.callCheckTokens = callCheckTokens;
+callCheckTokens()
 
 
 async function changeUsername(userId, newusername){
