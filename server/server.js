@@ -1,4 +1,4 @@
-const {app, express, pgp, db, session, io, aws_crypto, CryptoJS, /*ioS,*/ http /*,https*/, transporter, email} = require("./server_main.js");
+const {app, express, pgp, db, session, io, aws_crypto, CryptoJS, ioS, http ,https, nodemailer, transporter, email} = require("./server_main.js");
 const port = 3000
 const path = require("path");
 
@@ -35,18 +35,18 @@ var urls = {}; //an object that contains the urls
 var sentEmails = {}; //same structure as urls
 					 //saves if a person was sent an email
 
-var generateToken = function() {
+var generateToken = function() { // generates a verification token
 	return Math.random().toString(36).substr(2); // remove `0.`
 }
 
-function encodeQueryData(data) {
+function encodeQueryData(data) { // used to generate a get request link
 	const ret = [];
 	for (let d in data)
 	  ret.push(encodeURIComponent(d) + '=' + encodeURIComponent(data[d]));
 	return ret.join('&');
  }
 
-function checkWebsite(url) {
+function checkWebsite(url) { // checks website status
 	http
 		.get(url, function (res) {
 			console.log(url, res.statusCode);
@@ -62,8 +62,11 @@ function serverDownEmail(url, to_){
 		from: "" + email, // sender address
 		to: "" + to_, // list of receivers
 		subject: "A server is down", // Subject line
-		text: "The following server is down:", // plain text body
-		html: "<a href=" + url + ">" + url + "</a>", // html body
+		text: "The following server is down: " + url, // plain text body
+		html: "The following server is down: <a href=" + url + ">" + url + "</a>", // html body
+	}, function (error, info){
+		console.log("Error: ", error);
+		console.log("Info: ", info);
 	});
 }
 
@@ -72,8 +75,11 @@ function serverBackUpEmail(url, to_){
 		from: "" + email, // sender address
 		to: "" + to_, // list of receivers
 		subject: "A server is now working", // Subject line
-		text: "The following server is now working:", // plain text body
-		html: "<a href=" + url + ">" + url + "</a>", // html body
+		text: "The following server is now working: " + url, // plain text body
+		html: "The following server is now working: <a href=" + url + ">" + url + "</a>", // html body
+	}, function (error, info){
+		console.log("Error: ", error);
+		console.log("Info: ", info);
 	});
 }
 
@@ -90,7 +96,7 @@ function logUrls(){
 								dbFunctions.loadEmail(key_)
 								.then(function (dbReturn_){
 									if(dbReturn_.success){
-										await serverBackUpEmail(key, dbReturn_.object);
+										serverBackUpEmail(key, dbReturn_.object);
 									}
 								});
 
@@ -101,7 +107,7 @@ function logUrls(){
 								dbFunctions.loadEmail(key_)
 								.then(function (dbReturn_){
 									if(dbReturn_.success){
-										await serverDownEmail(key, dbReturn_.object);
+										serverDownEmail(key, dbReturn_.object);
 									}
 								});
 								serverDownEmail(key, );
@@ -188,12 +194,16 @@ app.post('/createUser', (req, res) => {
 			let sign = encodeQueryData(data);
 
 			let link = "https://wizardsofthecode.online/verify/" + sign;
-			await transporter.sendMail({
+			console.log("Email link: " + link);
+			transporter.sendMail({
 				from: "" + email, // sender address
 				to: "" + req.body.email, // list of receivers
 				subject: "Verify email", // Subject line
-				text: "Click the link below to verify email:", // plain text body
-				html: "<a href=" + link + ">Click here.</a>", // html body
+				text: "Click the link to verify email: " + link, // plain text body
+				html: "Click the link to verify email: <a href=" + link + "> Click here.</a>", // html body
+			}, function (error, info){
+				console.log("Error: ", error);
+				console.log("Info: ", info);
 			});
 		}
 		console.log(dbReturn);
@@ -322,16 +332,16 @@ function onConnection(socket){
 }
 
 io.on('connection', onConnection);
-//ioS.on('connection', onConnection);
+ioS.on('connection', onConnection);
 
 
 http.listen(80, () => {
 	console.log('HTTP Server running on port 80');
 });
 
-// https.listen(443, () => {
-// 	console.log('HTTPS Server running on port 443');
-// });
+ https.listen(443, () => {
+ 	console.log('HTTPS Server running on port 443');
+ });
 
 // receive and decrypt key
 db.any('SELECT * FROM encrypted_key')
