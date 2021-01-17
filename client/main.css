@@ -348,6 +348,150 @@ body{
       padding: 0;
   }
 
+#Page3 #Menu .button1{
+    position: absolute;
+    font-weight: bold;
+
+    display:inline-block;
+    left:13%;
+    top: 4%;
+    border: none;
+    transition-duration: 0.4s;
+    border-radius: 8px;
+    background-color: #ee574c;
+    color: white;
+    font-size: 120%;
+    width: 25%;
+    height: 50px;
+}
+#Page3 #Menu .button1:hover {
+    background-color: #7a2b26; 
+    color: white;
+  }
+
+#Page3 #Menu .button2{
+    position: absolute;
+    border: none;
+    font-weight: bold;
+    display:inline-block;
+    left:80%;
+    top: 5%;
+    width: 5%;
+    font-size: 90%;
+    color: white;
+    border-radius: 8px;
+    background-color:#598bac;
+    height: 40px;
+}
+#Page3 #Menu .button2:hover {
+    background-color: #133c57; 
+    color: white;
+  }
+
+#Page3 .head{
+    color: #4faae7;
+    position: absolute;
+    display:inline-block;
+    left: 16%;
+    bottom: 92%;
+}
+
+#Page3 .Logo{
+    display:inline-block;
+    width: 7%;
+    border-radius: 8px;
+    position: absolute;
+    left: 2%;
+    bottom: 86%;
+}
+
+#Page3 .profilePic{
+    display:inline-block;
+    border-radius: 8px;
+    position: absolute;
+    top: 5%;
+    left: 86%;
+}
+
+#Page3 b{
+    position:absolute;
+    top: 5%;
+    left: 9%;
+    color: #e9e9e9;
+}
+#Page3 #Header {
+    background:black;
+    text-align:center;
+    height: 20%;
+    border-bottom:1px solid #026e8a;
+  }
+
+#Page3 #Menu a {
+    font-size:24px;
+    display: inline-block;
+    vertical-align: middle;
+    color:#a1a1a1;
+    padding:3% 1% 1% 5%;
+    text-decoration: none;
+    text-align: center;
+    font-family:Verdana;
+    font-size:30px;
+  }
+#Page3 #Menu a:hover {
+    color: white;
+  }
+
+#Page3 #Menu .hp{
+    font-size:24px;
+    display: inline-block;
+    vertical-align: middle;
+    color: white;
+    padding:3% 1% 1% 5%;
+    text-decoration: none;
+    text-align: center;
+    font-family:Verdana;
+    font-size:30px;
+}
+
+#Page3 #Content a{
+    color:white;
+    position: absolute;
+    top: 20%;
+    left: 20%;
+}
+
+#Page3 #Content input{
+    position: absolute;
+    border-radius: 8px;
+    border: none;
+    top: 20%;
+    height: 2%;
+    left: 25%;
+    width: 35%;
+}
+
+#Page3 #Content button{
+    position: absolute;
+    border-radius: 8px;
+    border: none;
+    top: 18%;
+    height: 5%;
+    left: 62%;
+    width: 6%;
+}
+
+#Page3 #ContentDiv{
+    background-color: #c9c9c9;
+    position: absolute;
+    top: 30%;
+    left: 5%;
+    width: 90%;
+    height: 60%;
+    overflow-y: auto;
+    border-radius: 8px;
+    font-size: 19px;
+}
+
 
 
 
