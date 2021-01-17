@@ -211,6 +211,14 @@ function getLogs(url, brLogs){ //returns brLogs Logs (ot as many as there are) +
     }
 }
 
+function addUrl(url){ //adds url to the urls you want to track
+    if(user != null){
+        socket.emit('addUrl', {sessionId: sessionId, url: url});
+    }else{
+        alert("You must login/register.");
+    }
+}
+
 
 
 //listen with sockets for server
@@ -236,6 +244,14 @@ socket.on('receivedLogs', (msg) => {
         loadedLogs[response[i].id] = response[i];
         idsArr.push(response[i].id);
     }
+
+    onRecievedLogs(idsArr);
+});
+
+socket.on('receivedUrl', (msg) => {
+    let response = JSON.parse(msg);
+    
+    user.urls[response.url] = true;
 
     onRecievedLogs(idsArr);
 });

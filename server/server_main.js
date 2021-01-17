@@ -2,11 +2,23 @@ let express = require("express");
 let app = express();
 let fs = require('fs');
 
-let databaseUser = fs.readFileSync("databaseUser.json");
-databaseUser = JSON.parse(databaseUser).user;
+let info = fs.readFileSync("info.json");
+info = JSON.parse(info).user;
+
+const nodemailer = require("nodemailer");
+
+let transporter = nodemailer.createTransport({
+    host: "https://wizardsofthecode.online",
+    port: 80,
+    secure: false, // true for 465, false for other ports
+    auth: {
+        user: info.email, // email
+        pass: info.email_password, // password
+    },
+});
 
 var pgp = require('pg-promise')(/* options */);
-var db = pgp(databaseUser);
+var db = pgp(info);
 let session = require('express-session');
 
 // Certificate
@@ -31,6 +43,9 @@ let CryptoJS = require('crypto-js');
 
 exports.express = express;
 exports.app = app;
+
+exports.transporter = transporter;
+exports.email = info.email;
 
 exports.pgp = pgp;
 exports.db = db;

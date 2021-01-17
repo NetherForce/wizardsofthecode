@@ -1,4 +1,4 @@
-const {app, express, pgp, db, session, io, aws_crypto, CryptoJS, /*ioS,*/ http /*,https*/} = require("./server_main.js");
+const {app, express, pgp, db, session, io, aws_crypto, CryptoJS, /*ioS,*/ http /*,https*/, transporter, email} = require("./server_main.js");
 const port = 3000
 const path = require("path");
 
@@ -35,6 +35,17 @@ var urls = {}; //an object that contains the urls
 var sentEmails = {}; //same structure as urls
 					 //saves if a person was sent an email
 
+var generateToken = function() {
+	return Math.random().toString(36).substr(2); // remove `0.`
+}
+
+function encodeQueryData(data) {
+	const ret = [];
+	for (let d in data)
+	  ret.push(encodeURIComponent(d) + '=' + encodeURIComponent(data[d]));
+	return ret.join('&');
+ }
+
 function checkWebsite(url) {
 	http
 		.get(url, function (res) {
@@ -44,6 +55,26 @@ function checkWebsite(url) {
 		.on("error", function (error) {
 			return error.code;
 		});
+}
+
+function serverDownEmail(url, to_){
+	transporter.sendMail({
+		from: "" + email, // sender address
+		to: "" + to_, // list of receivers
+		subject: "A server is down", // Subject line
+		text: "The following server is down:", // plain text body
+		html: "<a href=" + url + ">" + url + "</a>", // html body
+	});
+}
+
+function serverBackUpEmail(url, to_){
+	transporter.sendMail({
+		from: "" + email, // sender address
+		to: "" + to_, // list of receivers
+		subject: "A server is now working", // Subject line
+		text: "The following server is now working:", // plain text body
+		html: "<a href=" + url + ">" + url + "</a>", // html body
+	});
 }
 
 function logUrls(){
@@ -56,13 +87,24 @@ function logUrls(){
 						if(value_){
 							userIdToSockets(key_).emit('receivedLog', {log: dbReturn.object});
 							if(sentEmails[key][key_]){
-								//send email saying that the server is back up
+								dbFunctions.loadEmail(key_)
+								.then(function (dbReturn_){
+									if(dbReturn_.success){
+										await serverBackUpEmail(key, dbReturn_.object);
+									}
+								});
 
 								sentEmails[key][key_] = false;
 							}
 						}else{
 							if(!sentEmails[key][key_]){
-								//send email saying that the server is down
+								dbFunctions.loadEmail(key_)
+								.then(function (dbReturn_){
+									if(dbReturn_.success){
+										await serverDownEmail(key, dbReturn_.object);
+									}
+								});
+								serverDownEmail(key, );
 
 								sentEmails[key][key_] = true;
 							}
@@ -119,17 +161,40 @@ app.get('/node_modules/socket.io/client-dist/socket.io.js', (req, res) => {
 	res.sendFile(__dirname + '/../node_modules/socket.io/client-dist/socket.io.js');
 });
 
+app.get('/verify/:id/:token', (req, res) => {
+	dbFunctions.verifyToken(req.body.id, req.body.token)
+	.then(function (dbReturn){
+		if(dbReturn.success){
+			res.sendFile(__dirname + '/../client/index.html');
+		}
+	});
+});
+
 app.post('/createUser', (req, res) => {
 	if(!req.body.username || (req.body.username.length > 16)) {
 		res.json({success:false, error:"Too long username!"});
 		return;
 	}
 	
-	dbFunctions.newUser(req.body.username, req.body.password)
+	let token = generateToken();
+
+	dbFunctions.newUser(req.body.username, req.body.email, req.body.password, token)
 	.then(function (dbReturn){
 		if(dbReturn.success){
 			req.body.session.userId = dbReturn.object.id;
 			dbReturn.sessionId = req.body.session.id;
+
+			const data = { 'id': dbReturn.id, 'token': token };
+			let sign = encodeQueryData(data);
+
+			let link = "https://wizardsofthecode.online/verify/" + sign;
+			await transporter.sendMail({
+				from: "" + email, // sender address
+				to: "" + req.body.email, // list of receivers
+				subject: "Verify email", // Subject line
+				text: "Click the link below to verify email:", // plain text body
+				html: "<a href=" + link + ">Click here.</a>", // html body
+			});
 		}
 		console.log(dbReturn);
 		res.json(dbReturn);
@@ -224,6 +289,25 @@ function onConnection(socket){
 							});
 						}else{
 							userIdToSockets[session.userId].emit('error', {error: dbReturn_.error});
+						}
+					});
+				}
+			}
+		});
+	});
+
+	socket.on('addUrl', (msg) => {
+		msg = JSON.parse(msg);
+
+		store.get(msg.sessionId, (error, session) => {
+			if(session.userId){
+				if(userIdToSockets[session.userId]){
+					dbFunctions.addUrlToUser(session.userId, msg.url)
+					.then(function (dbReturn){
+						if(dbReturn_.success){
+							userIdToSockets[session.userId].emit('receivedUrl', {url: msg.url});
+						}else{
+							userIdToSockets[session.userId].emit('error', {error: dbReturn.error});
 						}
 					});
 				}
