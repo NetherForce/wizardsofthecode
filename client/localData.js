@@ -1,5 +1,5 @@
 //var socket = io.connect('https://wizardsofthecode.online:443/');
-var socket = io('https://wizardsofthecode.online:8000/');
+var socket = io('ws://wizardsofthecode.online:80/');
 //var socket = io();
 
 function updateObj(obj1, obj2){
