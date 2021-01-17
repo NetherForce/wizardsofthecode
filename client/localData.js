@@ -77,7 +77,13 @@ function onRecievedLogs(logIdsArr){ //this function is called when Logs are rece
     //mi nz oshte ne sum go izmislil
 }
 
+function onReceivedURL(url){ //this function is called when an url is added to tracking list
+    //========== Nikifor
+}
 
+function onRemovedURL(url){ //this function is called when an url is removed from tracking list
+    //========== Nikifor
+}
 
 
 //functions for comunication with the server
@@ -201,6 +207,14 @@ function addUrl(url){ //adds url to the urls you want to track
     }
 }
 
+function addUrl(url){ //removes url from the urls you track
+    if(user != null){
+        socket.emit('removeUrl', {sessionId: sessionId, url: url});
+    }else{
+        alert("You must login/register.");
+    }
+}
+
 
 
 //listen with sockets for server
@@ -235,5 +249,13 @@ socket.on('receivedUrl', (msg) => {
     
     user.urls[response.url] = true;
 
-    onRecievedLogs(idsArr);
+    onReceivedURL(response.url);
+});
+
+socket.on('removedUrl', (msg) => {
+    let response = JSON.parse(msg);
+    
+    user.urls[response.url] = undefined;
+
+    onRemovedURL(response.url);
 });

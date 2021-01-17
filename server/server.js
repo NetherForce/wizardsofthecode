@@ -46,15 +46,32 @@ function encodeQueryData(data) { // used to generate a get request link
 	return ret.join('&');
  }
 
+ function subtractDtes(date1, date2){ // returns the difference in time between the dates in miliseconds
+	return Math.abs(date1 - date2);
+ }
+
 function checkWebsite(url) { // checks website status
+	let time = new Date();  // the time the function was called
+	let maxTime = 5 * 1000; // the maximum amount of time before the function returns and error | currently 5 sec.
+
 	http
 		.get(url, function (res) {
 			console.log(url, res.statusCode);
-			return res.statusCode === 200;
+			return =  res.statusCode === 200;
 		})
 		.on("error", function (error) {
-			return error.code;
-		});
+			return =  error.code;
+		})
+	then(function (fReturn){
+		if(subtractDtes(new Date(), time) < maxTime){
+			return fReturn;
+		}else{
+			fReturn = "Server is taking too long to respond.";
+			return fReturn;
+		}
+	});
+
+	
 }
 
 function serverDownEmail(url, to_){
@@ -325,6 +342,25 @@ function onConnection(socket){
 		});
 	});
 
+	socket.on('removeUrl', (msg) => {
+		msg = JSON.parse(msg);
+
+		store.get(msg.sessionId, (error, session) => {
+			if(session.userId){
+				if(userIdToSockets[session.userId]){
+					dbFunctions.removeUrlFromUser(session.userId, msg.url)
+					.then(function (dbReturn){
+						if(dbReturn_.success){
+							userIdToSockets[session.userId].emit('removedUrl', {url: msg.url});
+						}else{
+							userIdToSockets[session.userId].emit('error', {error: dbReturn.error});
+						}
+					});
+				}
+			}
+		});
+	});
+
 
 	socket.on('disconnect', () => {
 		console.log('user disconnected');
@@ -352,3 +388,12 @@ db.any('SELECT * FROM encrypted_key')
 		key = fromBytesToString(result);
 	});
 });
+
+let logUrlsTime = 30 * 1000; //the amount of time the function callLogUrlsFunction will wait before calling itself | it will currently wait 30 sec.
+
+function callLogUrlsFunction(){ // calls the function logUrl every few seconds
+	logUrls();
+	setTimeout(callLogUrlsFunction, logUrlsTime);
+}
+
+callLogUrlsFunction();
