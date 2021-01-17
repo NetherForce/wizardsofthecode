@@ -3,6 +3,9 @@
 
 <head>
     <link rel="stylesheet" href="main.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="/socket_io/socket.io.js"></script>
     <script src="localData.js"></script>
 </head>
 
@@ -76,9 +79,12 @@ availability at every moment.</p>
                     Add
                 </button>
 
-                <button class="button2">
-                    Filter by URL
+                <button class="button2" onclick="toggleFilterMenu()">
+                    Filter
                 </button>
+            </div>
+            <div id="filterMenu" style="display: none">
+                <p>wkffw</p>
             </div>
             <div id="logListWrapper">
                 <ul id="logListUl">
@@ -96,13 +102,13 @@ availability at every moment.</p>
         <div class="menu" id="login">
             <ul>
                 <li>
-                    <input type="text" placeholder="Enter Username/Email" required>
+                    <input id="usernameInput1" type="text" placeholder="Enter Username/Email" required>
                 </li>
                 <li>
-                    <input type="password" placeholder="Enter Password" required>
+                    <input id="passwordInput1" type="password" placeholder="Enter Password" required>
                 </li>
                 <li>
-                    <button type="submit">Login</button>
+                    <button type="submit" onclick="login()">Login</button>
                 </li>
                 <li>
                     <button type="button" class="cancel" onclick="toggleMenus()">Register</button>
@@ -112,16 +118,16 @@ availability at every moment.</p>
         <div class="menu" id="register" style="display: none">
             <ul>
                 <li>
-                    <input type="text" placeholder="Enter Username" required>
+                    <input id="usernameInput2" type="text" placeholder="Enter Username" required>
                 </li>
                 <li>
-                    <input type="text" placeholder="Email" required>
+                    <input id="emailInput" type="text" placeholder="Email" required>
                 </li>
                 <li>
-                    <input type="password" placeholder="Enter Password" required>
+                    <input id="passwordInput2" type="pasword" placeholder="Enter Password" required>
                 </li>
                 <li>
-                    <button type="submit">Register</button>
+                    <button type="submit" onclick="clickedRegisterButton()">Register</button>
                 </li>
                 <li>
                     <button type="button" class="cancel" onclick="toggleMenus()">Login</button>
@@ -142,13 +148,21 @@ availability at every moment.</p>
     </div>
     <script>
         function PageSwap(a, b) {
-            if ((a == 'Page2' || b == 'Page2') && user == null) {
-                if (a == 'Page2') {
-                    PageSwap(b, 'LoginPage');
-                } else {
-                    PageSwap(a, 'LoginPage');
-                }
-            } else if (document.getElementById(a).style.display == "none") {
+            //uncomment after testing
+//            if ((a == 'Page2' || b == 'Page2') && user == null) {
+//                if (a == 'Page2') {
+//                    PageSwap(b, 'LoginPage');
+//                } else {
+//                    PageSwap(a, 'LoginPage');
+//                }
+//            } else if (document.getElementById(a).style.display == "none") {
+//                    document.getElementById(a).style.display = "block";
+//                    document.getElementById(b).style.display = "none";
+//            } else {
+//                document.getElementById(a).style.display = "none";
+//                document.getElementById(b).style.display = "block";
+//            }
+            if (document.getElementById(a).style.display == "none") {
                     document.getElementById(a).style.display = "block";
                     document.getElementById(b).style.display = "none";
                 } else {
@@ -167,6 +181,24 @@ availability at every moment.</p>
         function LoginSwap3() {
             document.getElementById("Page1").style.display = "block";
             document.getElementById("LoginPage").style.display = "none";
+        }
+        function toggleFilterMenu() {
+            if (document.getElementById("filterMenu").style.display == "none") {
+                document.getElementById("filterMenu").style.display = "block";
+            } else {
+                document.getElementById("filterMenu").style.display = "none";
+            }
+        }
+        function clickedLoginButton() {
+            let username = document.getElementById('usernameInput1').value;
+            let password = document.getElementById('passwordInput1').value;
+            login(username, password);
+        }
+        function clickedRegisterButton() {
+            let username = document.getElementById('usernameInput2').value;
+            let email = document.getElementById('emailInput1').value;
+            let password = document.getElementById('passwordInput2').value;
+            register(username, email, password);
         }
     </script>
 </body>

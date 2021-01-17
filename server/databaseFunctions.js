@@ -5,7 +5,7 @@ let structures = require("./structures.js");
 
 //function for comunication between server and data base
 
-async function newUser(username, email, password){
+async function newUser(username, email, password, token){
     let returnV = new structures.dbReturn()
     let user = new structures.User();
     let date = new Date()

@@ -1,5 +1,5 @@
 //var socket = io.connect('https://wizardsofthecode.online:443/');
-var socket = io('https://wizardsofthecode.online:8000/');
+var socket = io('ws://wizardsofthecode.online:80/');
 //var socket = io();
 
 function updateObj(obj1, obj2){
@@ -62,6 +62,14 @@ function onRecievedLog(logId){ //this function is called when a Log is received 
     li.innerText += ' | status: ' + newLog.status;
     document.getElementById('logListUl').appendChild(li);
 }
+let log = new Log();
+log.id = 0;
+log.url = 'Google.com';
+log.date = new Date();
+log.time = '11:11';
+log.status = 'ok';
+loadedLogs[log.id] = log;
+onRecievedLog(log.id);
 
 function onRecievedLogs(logIdsArr){ //this function is called when Logs are received
     //========== Nikifor
@@ -185,6 +193,14 @@ function getLogs(url, brLogs){ //returns brLogs Logs (ot as many as there are) +
     }
 }
 
+function addUrl(url){ //adds url to the urls you want to track
+    if(user != null){
+        socket.emit('addUrl', {sessionId: sessionId, url: url});
+    }else{
+        alert("You must login/register.");
+    }
+}
+
 
 
 //listen with sockets for server
@@ -210,6 +226,14 @@ socket.on('receivedLogs', (msg) => {
         loadedLogs[response[i].id] = response[i];
         idsArr.push(response[i].id);
     }
+
+    onRecievedLogs(idsArr);
+});
+
+socket.on('receivedUrl', (msg) => {
+    let response = JSON.parse(msg);
+    
+    user.urls[response.url] = true;
 
     onRecievedLogs(idsArr);
 });
