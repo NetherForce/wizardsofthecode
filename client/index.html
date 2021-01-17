@@ -2,7 +2,8 @@
 <html>
 
 <head>
-    <link rel="stylesheet" href="page1.css" />
+    <link rel="stylesheet" href="main.css"/>
+    <script src="localData.js"></script>
 </head>
 
 <body>
@@ -21,7 +22,7 @@
                 </a>
 
                 <a onclick="PageSwap('Page1','Page2')">
-                    Server Managment
+                    Logs
                 </a>
 
                 <button class="button2" onclick="LoginSwap1()">
@@ -62,7 +63,7 @@
                 </a>
 
                 <a class="hp">
-                    Server Managment
+                    Logs
                 </a>
 
                 <button class="button2" onclick="LoginSwap2()">
@@ -82,20 +83,12 @@
                 </button>
 
                 <button class="button2">
-                    Filter but URL
+                    Filter by URL
                 </button>
             </div>
-
-            <div id="firstRow">
-
-            </div>
-
-            <div id="secondRow">
-
-            </div>
-
-            <div id="thirdRow">
-
+            <div id="logListWrapper">
+                <ul id="logListUl">
+                </ul>
             </div>
     </div>
 
