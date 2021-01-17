@@ -57,10 +57,10 @@ function checkWebsite(url) { // checks website status
 	http
 		.get(url, function (res) {
 			console.log(url, res.statusCode);
-			return =  res.statusCode === 200;
+			return res.statusCode === 200;
 		})
 		.on("error", function (error) {
-			return =  error.code;
+			return error.code;
 		})
 	then(function (fReturn){
 		if(subtractDtes(new Date(), time) < maxTime){
@@ -185,7 +185,7 @@ app.get('/node_modules/socket.io/client-dist/socket.io.js', (req, res) => {
 });
 
 app.get('/verify/:id/:token', (req, res) => {
-	dbFunctions.verifyToken(req.body.id, req.body.token)
+	dbFunctions.verifyUser(req.body.token, req.body.id)
 	.then(function (dbReturn){
 		if(dbReturn.success){
 			res.sendFile(__dirname + '/../client/index.html');
