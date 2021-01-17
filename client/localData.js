@@ -207,7 +207,7 @@ function addUrl(url){ //adds url to the urls you want to track
     }
 }
 
-function addUrl(url){ //removes url from the urls you track
+function removeUrl(url){ //removes url from the urls you track
     if(user != null){
         socket.emit('removeUrl', {sessionId: sessionId, url: url});
     }else{
