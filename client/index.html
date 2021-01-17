@@ -23,12 +23,14 @@
                     Home Page
                 </a>
 
+<!--
                 <a onclick="PageSwap3()">
                     Check Url
                 </a>
+-->
 
                 <a onclick="PageSwap('Page1','Page2')">
-                    Logs
+                    Monitor
                 </a>
 
                 <button class="button2" onclick="LoginSwap1()">
@@ -60,12 +62,14 @@
                     Home Page
                 </a>
 
+<!--
                 <a onclick="PageSwap4()">
                     Check Url
                 </a>
+-->
 
                 <a class="hp">
-                    Logs
+                    Monitor
                 </a>
 
                 <button class="button2" onclick="LoginSwap2()">
@@ -187,12 +191,14 @@
                     Home Page
                 </a>
 
+<!--
                 <a class="hp">
                     Check Url
                 </a>
+-->
 
                 <a onclick="PageSwap('Page2','Page3')">
-                    Logs
+                    Monitor
                 </a>
 
                 <button class="button2" onclick="LoginSwap1()">
@@ -220,28 +226,28 @@
 
     <script>
         function PageSwap(a, b) {
-            //uncomment after testing
-            //            if ((a == 'Page2' || b == 'Page2') && user == null) {
-            //                if (a == 'Page2') {
-            //                    PageSwap(b, 'LoginPage');
-            //                } else {
-            //                    PageSwap(a, 'LoginPage');
-            //                }
-            //            } else if (document.getElementById(a).style.display == "none") {
-            //                    document.getElementById(a).style.display = "block";
-            //                    document.getElementById(b).style.display = "none";
-            //            } else {
-            //                document.getElementById(a).style.display = "none";
-            //                document.getElementById(b).style.display = "block";
-            //            }
-            //remove after testing
-            if (document.getElementById(a).style.display == "none") {
-                document.getElementById(a).style.display = "block";
-                document.getElementById(b).style.display = "none";
+//            uncomment after testing
+            if ((a == 'Page2' || b == 'Page2') && typeof user == 'undefined') {
+                if (a == 'Page2') {
+                    PageSwap(b, 'LoginPage');
+                } else {
+                    PageSwap(a, 'LoginPage');
+                }
+            } else if (document.getElementById(a).style.display == "none") {
+                    document.getElementById(a).style.display = "block";
+                    document.getElementById(b).style.display = "none";
             } else {
                 document.getElementById(a).style.display = "none";
                 document.getElementById(b).style.display = "block";
             }
+//            remove after testing
+//            if (document.getElementById(a).style.display == "none") {
+//                document.getElementById(a).style.display = "block";
+//                document.getElementById(b).style.display = "none";
+//            } else {
+//                document.getElementById(a).style.display = "none";
+//                document.getElementById(b).style.display = "block";
+//            }
         }
         function LoginSwap1() {
             document.getElementById("Page1").style.display = "none";
