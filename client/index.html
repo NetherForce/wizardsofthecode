@@ -83,22 +83,41 @@
 
         <body>
             <div id="buttons">
-                <button class="button1">
-                    Add
+                <button class="button1" id="addURLButton" onclick="toggleAddURLMenu()">
+                    Add URL
                 </button>
-
+                <button id="changeListsButton" onclick="changeLists()">
+                    URLs
+                </button>
                 <button class="button2" onclick="toggleFilterMenu()">
                     Filter
                 </button>
             </div>
-
-            <div id="filterMenu" style="display: none">
-                <p>wkffw</p>
+            <div id="addURLMenu" style="display: none" class="popUpMenu">
+                <p>Add URLs</p>
+                <button onclick="toggleAddURLMenu()">
+                    Close
+                </button>
+                <input id="urlInput" type="text" placeholder="Enter URL" required>
+                <button onclick="addURL()">
+                    Add
+                </button>
             </div>
+            <div id="filterMenu" style="display: none" class="popUpMenu">
+                <p>Filter</p>
+            </div>
+
 
             <div id="logListWrapper">
                 <ul id="logListUl">
                 </ul>
+            </div>
+            <div id="urlListWrapper" style="display: none" class="list">
+                <ul id="urlListUl">
+                    <li onclick="selectURL(this)" id="eefe">URL 1</li>
+                    <li onclick="selectURL(this)" id="wfwfw">URL 2</li>
+                </ul>
+                <button onclick="deleteURL()">Delete</button>
             </div>
     </div>
 
@@ -239,10 +258,23 @@
             document.getElementById("LoginPage").style.display = "none";
         }
         function toggleFilterMenu() {
+            if (document.getElementById("addURLMenu").style.display == "block") {
+                document.getElementById("addURLMenu").style.display = "none";
+            }
             if (document.getElementById("filterMenu").style.display == "none") {
                 document.getElementById("filterMenu").style.display = "block";
             } else {
                 document.getElementById("filterMenu").style.display = "none";
+            }
+        }
+        function toggleAddURLMenu() {
+            if (document.getElementById("filterMenu").style.display == "block") {
+                document.getElementById("filterMenu").style.display = "none";
+            }
+            if (document.getElementById("addURLMenu").style.display == "none") {
+                document.getElementById("addURLMenu").style.display = "block";
+            } else {
+                document.getElementById("addURLMenu").style.display = "none";
             }
         }
         function clickedLoginButton() {
@@ -256,6 +288,38 @@
             let password = document.getElementById('passwordInput2').value;
             register(username, email, password);
         }
+        function addURL() {
+            addUrl(document.getElementById('urlInput').value);
+            document.getElementById('urlInput').value = "";
+        };
+        function changeLists() {
+            if (document.getElementById("logListWrapper").style.display == "none") {
+                document.getElementById("logListWrapper").style.display = "block";
+                document.getElementById("urlListWrapper").style.display = "none";
+                document.getElementById("changeListsButton").innerText = "URLs";
+            } else {
+                document.getElementById("logListWrapper").style.display = "none";
+                document.getElementById("urlListWrapper").style.display = "block";
+                document.getElementById("changeListsButton").innerText = "Logs";
+            }
+        };
+        let selectedURLId = '';
+        function selectURL(element) {
+            if (selectedURLId == '') {
+                element.style.backgroundColor = '#8d8c8c';
+                selectedURLId = element.id;
+            } else  if (selectedURLId == element.id) {
+                element.style.backgroundColor = '#c9c9c9';
+                selectedURLId = '';
+            } else {
+                document.getElementById(selectedURLId).style.backgroundColor = '#c9c9c9';
+                element.style.backgroundColor = '#8d8c8c';
+                selectedURLId = element.id;
+            }
+        };
+        function deleteURL() {
+            document.getElementById(selectedURLId).style.display = 'none';
+        };
         function PageSwap3() {
             document.getElementById("Page1").style.display = "none";
             document.getElementById("Page3").style.display = "block";

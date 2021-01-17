@@ -133,6 +133,7 @@ body{
     height: 5%;
     top: 18%;
     font-weight: bold;
+    transition-duration: 0.4s;
 }
 #Page2 #buttons .button1:hover{
     background-color: #7a2b26;
@@ -152,6 +153,7 @@ body{
     width: 20%;
     height: 5%;
     font-weight: bold;
+    transition-duration: 0.4s;
 }
 
 #Page2 #buttons .button2:hover{
@@ -159,31 +161,26 @@ body{
     color: white;
     font-weight: bold;
 }
+#Page2 #changeListsButton{
+    position: absolute;
+    border: none;
+    border-radius: 8px;
+    background-color: #598bac ;
+    color: white;
+    left: 35%;
+    top: 18%;
+    width: 20%;
+    height: 5%;
+    font-weight: bold;
+    transition-duration: 0.4s;
+}
 
-#Page2 #firstRow{
-    position: absolute;
-    border: 1px solid black;
-    background-color: white;
-    width: 99%;
-    height: 10%;
-    top: 30%;
+#Page2 #changeListsButton:hover{
+    background-color: #133c57 ;
+    color: white;
+    font-weight: bold;
 }
-#Page2 #secondRow{
-    position: absolute;
-    border: 1px solid black;
-    background-color: white;
-    width: 99%;
-    height: 10%;
-    top: 50%;
-}
-#Page2 #thirdRow{
-    position: absolute;
-    border: 1px solid black;
-    background-color: white;
-    width: 99%;
-    height: 10%;
-    top: 70%;
-}
+
 
 #Page2 #Header {
     background:black;
@@ -245,13 +242,14 @@ body{
     font-size: 90%;
     color: white;
     border-radius: 8px;
+    transition-duration: 0.4s;
     background-color:#598bac;
     height: 40px;
 }
 #Page2 #Menu .button2:hover {
     background-color: #133c57; 
     color: white;
-  }
+}
 
 #Page2 b{
     position:absolute;
@@ -259,7 +257,7 @@ body{
     left: 9%;
     color: #e9e9e9;
 }
-#Page2 #logListWrapper{
+#Page2 .list{
     background-color: #c9c9c9;
     position: absolute;
     top: 30%;
@@ -270,18 +268,62 @@ body{
     border-radius: 8px;
     font-size: 19px;
 }
-#Page2 #logListWrapper ul{
+#Page2 .list ul{
     list-style: none;
 }
-#Page2 #filterMenu{
-    background-color: red;
-}
 
+#Page2 .popUpMenu{
+    text-align: center;
+    background-color: #ee574c;
+    color: white;
+    position: absolute;
+    z-index: 10;
+    border-radius: 8px;
+    padding: 20px;
+}
+#Page2 #addURLMenu{
+    top: 30%;
+    left: 40%;
+}
+#Page2 #filterMenu{
+    top: 30%;
+    left: 50%;
+}
+#Page2 #urlListWrapper button{
+    position: absolute;
+    bottom: 10px;
+    background-color: #ee574c;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    cursor: pointer;
+    border-radius: 8px;
+    font-weight: bolder;
+    transition-duration: 0.4s;
+}
+#Page2 #urlListWrapper button:hover{
+    background-color: #7a2b26;
+}
+#Page2 .popUpMenu button{
+    background-color: #598BAC;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    cursor: pointer;
+    border-radius: 8px;
+    font-weight: bolder;
+    transition-duration: 0.4s;
+}
+#Page2 .popUpMenu button:hover{
+    background-color: #133c57;
+}
 #LoginPage form {
     border: 3px solid #767272;
   }
-  #LoginPage input[type=text],
-  #LoginPage input[type=password] {
+   input[type=text],
+  input[type=password] {
       padding: 12px 20px;
       margin: 8px 0;
       border: none;
