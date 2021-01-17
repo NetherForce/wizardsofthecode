@@ -283,6 +283,7 @@ async function addUrlToUser(userId, url){
 }
 exports.addUrlToUser = addUrlToUser;
 
+
 async function removeUrlFromUser(userId, url){
     //removes url to user
 
@@ -333,6 +334,7 @@ async function createLog(url, status){
 }
 exports.createLog = createLog;
 
+
 async function getLog(logId){
     //returns Log from its id
 
@@ -354,7 +356,6 @@ async function getLog(logId){
     return returnV;
 }
 exports.getLog = getLog;
-getLog()
 
 
 async function getLogs(url, numberOfLogs, offset){
